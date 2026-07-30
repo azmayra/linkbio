@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azmayra</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 48px 20px 60px;
+    transition: background 0.4s;
+  }
+  .avatar {
+    width: 88px; height: 88px; border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px; margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 22px; font-weight: 600; color: #fff;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+    margin-bottom: 6px; text-align: center;
+  }
+  .bio {
+    font-size: 14px; color: rgba(255,255,255,0.88);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    margin-bottom: 28px; text-align: center; max-width: 280px;
+  }
+  #links { width: 100%; max-width: 380px; }
+  .link-btn {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; background: rgba(255,255,255,0.92);
+    border-radius: 14px; padding: 14px 18px;
+    margin-bottom: 12px; text-decoration: none; color: #1a1a1a;
+    font-size: 15px; font-weight: 500; border: none; cursor: pointer;
+    transition: transform 0.15s, background 0.15s; text-align: left;
+  }
+  .link-btn:hover { background: #fff; transform: scale(1.025); }
+  .link-btn:active { transform: scale(0.98); }
+  .link-icon { font-size: 22px; width: 30px; text-align: center; flex-shrink: 0; }
+  .link-label { flex: 1; }
+  .link-arrow { color: #bbb; font-size: 18px; }
+  .domain {
+    margin-top: 32px; font-size: 12px;
+    color: rgba(255,255,255,0.55); letter-spacing: 0.06em;
+  }
+  .loading { color: rgba(255,255,255,0.7); font-size: 14px; margin: 20px 0; }
+  .error-msg { color: rgba(255,255,255,0.8); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body id="page">
+
+<!-- Ganti dengan URL & key Supabase kamu -->
+<script>
+const SUPABASE_URL = 'https://lqhfdkggkmlorufswmhv.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxaGZka2dna21sb3J1ZnN3bWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzNzkzNDQsImV4cCI6MjEwMDk1NTM0NH0.mQ3Npu3aD6CPdJixrKTxYrchDOuWjsx6eWAdumVNgvo';
+
+async function db(path, opts = {}) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || ''
+    },
+    ...opts
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.status === 204 ? null : res.json();
+}
+
+async function trackClick(link) {
+  try {
+    await db('az_clicks', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: JSON.stringify({
+        link_id: link.id,
+        link_label: link.label,
+        link_url: link.url,
+        referrer: document.referrer || null,
+        user_agent: navigator.userAgent
+      })
+    });
+  } catch(e) { /* gagal tracking tidak blokir navigasi */ }
+}
+
+async function init() {
+  const page = document.getElementById('page');
+
+  try {
+    const [profiles, links] = await Promise.all([
+      db('az_profile?select=*&limit=1'),
+      db('az_links?select=*&active=eq.true&order=sort_order.asc')
+    ]);
+
+    const profile = profiles[0] || {};
+    page.style.background = profile.background || 'linear-gradient(135deg,#f8a5c2,#f7b733)';
+
+    page.innerHTML = `
+      <div class="avatar">${profile.emoji || '🌸'}</div>
+      <h1>${profile.name || 'Azmayra'}</h1>
+      <div class="bio">${profile.bio || ''}</div>
+      <div id="links"></div>
+      <div class="domain">azmayra.com</div>
+    `;
+
+    const container = document.getElementById('links');
+    links.forEach(link => {
+      const btn = document.createElement('a');
+      btn.className = 'link-btn';
+      btn.href = link.url;
+      btn.target = '_blank';
+      btn.rel = 'noopener noreferrer';
+      btn.innerHTML = `
+        <span class="link-icon">${link.icon || '🔗'}</span>
+        <span class="link-label">${link.label}</span>
+        <span class="link-arrow">›</span>
+      `;
+      btn.addEventListener('click', () => trackClick(link));
+      container.appendChild(btn);
+    });
+
+  } catch(e) {
+    page.style.background = 'linear-gradient(135deg,#f8a5c2,#f7b733)';
+    page.innerHTML = `
+      <div class="avatar">🌸</div>
+      <h1>Azmayra</h1>
+      <p class="error-msg">Tidak dapat memuat link. Periksa koneksi internet kamu.</p>
+      <div class="domain">azmayra.com</div>
+    `;
+    console.error(e);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

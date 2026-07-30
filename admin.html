@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Azmayra</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f5f3; --card: #fff; --border: rgba(0,0,0,0.1);
+    --text: #1a1a1a; --muted: #888; --accent: #378ADD; --danger: #e24b4a;
+    --success: #1baf7a; --radius: 10px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
+  header { background: var(--card); border-bottom: 0.5px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 16px; font-weight: 600; }
+  header span { font-size: 12px; color: var(--muted); }
+  .main { display: grid; grid-template-columns: 340px 1fr; gap: 20px; padding: 20px 24px; max-width: 1200px; }
+  .card { background: var(--card); border: 0.5px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+  .section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
+  input[type=text], input[type=url], textarea, select {
+    width: 100%; padding: 8px 10px; border: 0.5px solid var(--border);
+    border-radius: var(--radius); font-size: 13px; color: var(--text);
+    background: #fafafa; margin-bottom: 8px; font-family: inherit;
+  }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  .btn { padding: 7px 14px; border-radius: var(--radius); border: 0.5px solid var(--border); font-size: 12px; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-danger  { background: none; color: var(--danger); border-color: #f7c1c1; }
+  .btn-save    { background: var(--success); color: #fff; border-color: var(--success); width: 100%; padding: 10px; margin-top: 6px; font-size: 13px; }
+  .btn:hover { opacity: 0.88; }
+  .link-row { display: flex; gap: 6px; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .link-row:last-child { border-bottom: none; }
+  .link-row .icon-pick { font-size: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 0.5px solid var(--border); border-radius: 8px; cursor: pointer; flex-shrink: 0; background: #fafafa; }
+  .link-row .fields { flex: 1; }
+  .link-row input { margin-bottom: 4px; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 16px; }
+  .stat-card { background: #f8f8f6; border-radius: var(--radius); padding: 14px; }
+  .stat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .stat-val { font-size: 24px; font-weight: 600; }
+  .stat-sub { font-size: 11px; color: var(--success); margin-top: 2px; }
+
+  .chart-wrap { position: relative; width: 100%; height: 180px; margin-bottom: 16px; }
+  .link-stat-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid var(--border); }
+  .link-stat-row:last-child { border-bottom: none; }
+  .ls-icon { font-size: 18px; width: 26px; text-align: center; }
+  .ls-info { flex: 1; }
+  .ls-name { font-size: 13px; font-weight: 500; }
+  .ls-bar-wrap { width: 100px; height: 5px; background: #eee; border-radius: 3px; overflow: hidden; }
+  .ls-bar { height: 100%; border-radius: 3px; background: var(--accent); }
+  .ls-count { font-size: 13px; font-weight: 600; min-width: 30px; text-align: right; }
+  .ls-pct { font-size: 11px; color: var(--muted); min-width: 32px; text-align: right; }
+
+  .tab-row { display: flex; gap: 4px; margin-bottom: 14px; }
+  .tab-btn { padding: 5px 14px; border-radius: var(--radius); border: 0.5px solid var(--border); font-size: 12px; cursor: pointer; background: var(--bg); }
+  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .wp-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-bottom: 10px; }
+  .wp-swatch { height: 36px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; }
+  .wp-swatch.sel { border-color: var(--accent); }
+
+  .emoji-row { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  .ep { font-size: 22px; cursor: pointer; padding: 4px; border-radius: 6px; }
+  .ep:hover { background: #f0f0ee; }
+
+  .loading { color: var(--muted); font-size: 13px; text-align: center; padding: 20px; }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--success); color: #fff; padding: 10px 18px; border-radius: var(--radius); font-size: 13px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 99; }
+  .toast.show { opacity: 1; }
+  .period-row { display: flex; gap: 6px; margin-bottom: 14px; }
+  .period-btn { padding: 4px 12px; border-radius: var(--radius); border: 0.5px solid var(--border); font-size: 12px; cursor: pointer; background: var(--bg); }
+  .period-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- Ganti dengan URL & key Supabase kamu -->
+<script>
+const SUPABASE_URL = 'https://lqhfdkggkmlorufswmhv.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxaGZka2dna21sb3J1ZnN3bWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzNzkzNDQsImV4cCI6MjEwMDk1NTM0NH0.mQ3Npu3aD6CPdJixrKTxYrchDOuWjsx6eWAdumVNgvo';
+</script>
+
+<header>
+  <h1>🌸 Azmayra — Panel Admin</h1>
+  <span id="last-updated"></span>
+</header>
+
+<div class="main">
+  <!-- KOLOM KIRI: EDITOR -->
+  <div>
+    <div class="card">
+      <div class="section-title">Profil</div>
+      <div class="emoji-row" id="emoji-picker"></div>
+      <input type="text" id="ed-name" placeholder="Nama">
+      <input type="text" id="ed-bio" placeholder="Bio singkat">
+      <div class="section-title" style="margin-top:8px">Wallpaper</div>
+      <div class="wp-grid" id="wp-picker"></div>
+      <button class="btn btn-save" onclick="saveProfile()">💾 Simpan profil</button>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Daftar link</div>
+      <div id="link-editor"></div>
+      <button class="btn btn-primary" onclick="addLink()" style="width:100%;margin-top:6px">+ Tambah link</button>
+    </div>
+  </div>
+
+  <!-- KOLOM KANAN: ANALITIK -->
+  <div>
+    <div class="period-row">
+      <button class="period-btn" onclick="setPeriod(7,this)">7 hari</button>
+      <button class="period-btn active" onclick="setPeriod(30,this)">30 hari</button>
+      <button class="period-btn" onclick="setPeriod(90,this)">90 hari</button>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Total klik</div><div class="stat-val" id="s-total">—</div><div class="stat-sub" id="s-delta"></div></div>
+      <div class="stat-card"><div class="stat-label">Rerata / hari</div><div class="stat-val" id="s-avg">—</div><div class="stat-sub" id="s-period"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Tren klik harian</div>
+      <div class="chart-wrap"><canvas id="trendChart" role="img" aria-label="Grafik tren klik harian dari Supabase"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Klik per link</div>
+      <div id="link-stats"><div class="loading">Memuat data...</div></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Jam tersibuk</div>
+      <div class="chart-wrap" style="height:120px"><canvas id="hourChart" role="img" aria-label="Klik per jam"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const WALLPAPERS = [
+  'linear-gradient(135deg,#f8a5c2,#f7b733)',
+  'linear-gradient(135deg,#a29bfe,#6c5ce7)',
+  'linear-gradient(135deg,#55efc4,#00b894)',
+  'linear-gradient(135deg,#fd79a8,#e84393)',
+  'linear-gradient(135deg,#74b9ff,#0984e3)',
+  'linear-gradient(135deg,#ffeaa7,#fdcb6e)',
+  'linear-gradient(135deg,#fab1a0,#e17055)',
+  'linear-gradient(135deg,#dfe6e9,#636e72)',
+  'linear-gradient(135deg,#b2bec3,#2d3436)',
+  'linear-gradient(135deg,#00cec9,#0984e3)',
+];
+const EMOJIS = ['🌸','✨','🌙','🌊','🌺','🦋','🌈','💫','🍀','🌻','🎀','💖','🔥','🎵','🦄','🌷','🍉','☁️','⭐','🎯'];
+const LINK_ICONS = ['🏠','📸','🎵','🎬','💌','🛍','📝','🔗','💻','🎮','📱','🌐','💡','🎨','📞'];
+
+let profile = {};
+let links = [];
+let selBg = WALLPAPERS[0];
+let selEmoji = '🌸';
+let period = 30;
+let tChart = null, hChart = null;
+
+async function db(path, opts = {}) {
+  const method = opts.method || 'GET';
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || (method === 'POST' ? 'return=representation' : '')
+    },
+    body: opts.body
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.status === 204 ? null : res.json();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ---- EDITOR ----
+
+function buildWpPicker() {
+  document.getElementById('wp-picker').innerHTML = WALLPAPERS.map(w =>
+    `<div class="wp-swatch${w===selBg?' sel':''}" style="background:${w}" onclick="selBg='${w}';document.querySelectorAll('.wp-swatch').forEach(x=>x.classList.remove('sel'));this.classList.add('sel')"></div>`
+  ).join('');
+}
+
+function buildEmojiPicker() {
+  document.getElementById('emoji-picker').innerHTML = EMOJIS.map(e =>
+    `<span class="ep" onclick="selEmoji='${e}';document.getElementById('sel-emoji-label').textContent='${e}'">${e}</span>`
+  ).join('') + `<span style="font-size:13px;color:var(--muted);align-self:center;margin-left:4px">Dipilih: <span id="sel-emoji-label">${selEmoji}</span></span>`;
+}
+
+function renderLinkEditor() {
+  document.getElementById('link-editor').innerHTML = links.map((l, i) => `
+    <div class="link-row" id="le${l.id}">
+      <div class="icon-pick" onclick="cycleIcon(${i})" title="Klik ganti icon">${l.icon}</div>
+      <div class="fields">
+        <input type="text" value="${l.label}" placeholder="Nama link" oninput="links[${i}].label=this.value">
+        <input type="url"  value="${l.url}"   placeholder="https://..." oninput="links[${i}].url=this.value">
+      </div>
+      <button class="btn btn-danger" onclick="deleteLink(${i},${l.id})">✕</button>
+    </div>
+  `).join('');
+}
+
+let iconPointers = {};
+function cycleIcon(i) {
+  const id = links[i].id;
+  iconPointers[id] = ((iconPointers[id]||0)+1) % LINK_ICONS.length;
+  links[i].icon = LINK_ICONS[iconPointers[id]];
+  renderLinkEditor();
+}
+
+async function addLink() {
+  try {
+    const [newLink] = await db('az_links', {
+      method: 'POST',
+      body: JSON.stringify({ icon:'🔗', label:'Link Baru', url:'https://azmayra.com', sort_order: links.length+1 })
+    });
+    links.push(newLink);
+    renderLinkEditor();
+  } catch(e) { showToast('Gagal tambah link'); }
+}
+
+async function deleteLink(i, id) {
+  if (!confirm('Hapus link ini?')) return;
+  try {
+    await db(`az_links?id=eq.${id}`, { method: 'DELETE' });
+    links.splice(i, 1);
+    renderLinkEditor();
+    showToast('Link dihapus');
+    loadAnalytics();
+  } catch(e) { showToast('Gagal hapus'); }
+}
+
+async function saveProfile() {
+  try {
+    await db('az_profile?id=eq.1', {
+      method: 'PATCH',
+      prefer: 'return=minimal',
+      body: JSON.stringify({
+        name: document.getElementById('ed-name').value,
+        bio: document.getElementById('ed-bio').value,
+        emoji: selEmoji,
+        background: selBg,
+        updated_at: new Date().toISOString()
+      })
+    });
+    for (const l of links) {
+      await db(`az_links?id=eq.${l.id}`, {
+        method: 'PATCH', prefer: 'return=minimal',
+        body: JSON.stringify({ icon: l.icon, label: l.label, url: l.url })
+      });
+    }
+    showToast('✅ Tersimpan!');
+  } catch(e) { showToast('Gagal simpan: ' + e.message); }
+}
+
+// ---- ANALITIK ----
+
+function setPeriod(p, btn) {
+  period = p;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadAnalytics();
+}
+
+async function loadAnalytics() {
+  const since = new Date();
+  since.setDate(since.getDate() - period);
+  const sinceISO = since.toISOString();
+
+  try {
+    // Ambil klik mentah
+    const clicks = await db(`az_clicks?clicked_at=gte.${sinceISO}&select=link_id,link_label,clicked_at&order=clicked_at.asc`);
+
+    const total = clicks.length;
+    document.getElementById('s-total').textContent = total.toLocaleString('id');
+    document.getElementById('s-avg').textContent = Math.round(total / period);
+    document.getElementById('s-period').textContent = `${period} hari terakhir`;
+    document.getElementById('last-updated').textContent = 'Diperbarui ' + new Date().toLocaleTimeString('id');
+
+    // Tren harian
+    const byDay = {};
+    clicks.forEach(c => {
+      const day = c.clicked_at.slice(0, 10);
+      byDay[day] = (byDay[day] || 0) + 1;
+    });
+    const days = [];
+    for (let d = period - 1; d >= 0; d--) {
+      const dt = new Date(); dt.setDate(dt.getDate() - d);
+      days.push(dt.toISOString().slice(0, 10));
+    }
+    const trendLabels = days.map(d => { const [,m,dy] = d.split('-'); return `${parseInt(dy)}/${parseInt(m)}`; });
+    const trendData   = days.map(d => byDay[d] || 0);
+
+    if (tChart) tChart.destroy();
+    tChart = new Chart(document.getElementById('trendChart'), {
+      type: 'line',
+      data: {
+        labels: trendLabels,
+        datasets: [{ label: 'Klik', data: trendData, borderColor: '#378ADD', backgroundColor: '#378ADD22', borderWidth: 2, pointRadius: 0, tension: 0.35, fill: true }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#aaa', font: { size: 10 }, maxTicksLimit: 10 } },
+          y: { grid: { color: '#eee' }, ticks: { color: '#aaa', font: { size: 10 } }, border: { display: false } }
+        }
+      }
+    });
+
+    // Klik per link
+    const byLink = {};
+    clicks.forEach(c => { byLink[c.link_label] = (byLink[c.link_label] || 0) + 1; });
+    const sortedLinks = Object.entries(byLink).sort((a, b) => b[1] - a[1]);
+    const maxClicks = sortedLinks[0]?.[1] || 1;
+    const linkIcons = {};
+    links.forEach(l => linkIcons[l.label] = l.icon || '🔗');
+
+    document.getElementById('link-stats').innerHTML = sortedLinks.length
+      ? sortedLinks.map(([label, count]) => `
+          <div class="link-stat-row">
+            <span class="ls-icon">${linkIcons[label] || '🔗'}</span>
+            <div class="ls-info"><div class="ls-name">${label}</div></div>
+            <div class="ls-bar-wrap"><div class="ls-bar" style="width:${Math.round(count/maxClicks*100)}%"></div></div>
+            <div class="ls-count">${count.toLocaleString('id')}</div>
+            <div class="ls-pct">${Math.round(count/total*100)}%</div>
+          </div>`)
+        .join('')
+      : '<div class="loading">Belum ada klik tercatat</div>';
+
+    // Jam tersibuk
+    const byHour = Array(24).fill(0);
+    clicks.forEach(c => { byHour[new Date(c.clicked_at).getHours()]++; });
+    const peakH = byHour.indexOf(Math.max(...byHour));
+    const barColors = byHour.map((_, i) => i === peakH ? '#378ADD' : '#378ADD44');
+
+    if (hChart) hChart.destroy();
+    hChart = new Chart(document.getElementById('hourChart'), {
+      type: 'bar',
+      data: {
+        labels: Array(24).fill(0).map((_, i) => i % 3 === 0 ? `${String(i).padStart(2,'0')}:00` : ''),
+        datasets: [{ data: byHour, backgroundColor: barColors, borderRadius: 3, borderSkipped: false }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { title: c => `Pukul ${String(c[0].dataIndex).padStart(2,'0')}:00`, label: c => `${c.raw} klik` } } },
+        scales: { x: { grid: { display: false }, ticks: { color: '#aaa', font: { size: 10 } } }, y: { grid: { color: '#eee' }, ticks: { color: '#aaa', font: { size: 10 } }, border: { display: false } } }
+      }
+    });
+
+  } catch(e) {
+    document.getElementById('link-stats').innerHTML = `<div class="loading">Gagal memuat data: ${e.message}</div>`;
+  }
+}
+
+async function loadProfile() {
+  try {
+    const [p] = await db('az_profile?select=*&limit=1');
+    profile = p;
+    selEmoji = p.emoji || '🌸';
+    selBg = p.background || WALLPAPERS[0];
+    document.getElementById('ed-name').value = p.name || 'Azmayra';
+    document.getElementById('ed-bio').value = p.bio || '';
+    buildWpPicker();
+    buildEmojiPicker();
+  } catch(e) { buildWpPicker(); buildEmojiPicker(); }
+}
+
+async function loadLinks() {
+  try {
+    links = await db('az_links?select=*&order=sort_order.asc');
+    renderLinkEditor();
+  } catch(e) { document.getElementById('link-editor').innerHTML = '<div class="loading">Gagal memuat link</div>'; }
+}
+
+// Init
+loadProfile();
+loadLinks();
+loadAnalytics();
+</script>
+</body>
+</html>
