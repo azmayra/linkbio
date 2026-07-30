@@ -154,6 +154,7 @@ input:focus{outline:none;border-color:var(--accent)}
 const SUPABASE_URL = 'https://lqhfdkggkmlorufswmhv.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxaGZka2dna21sb3J1ZnN3bWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzNzkzNDQsImV4cCI6MjEwMDk1NTM0NH0.mQ3Npu3aD6CPdJixrKTxYrchDOuWjsx6eWAdumVNgvo';
 
+
 // Brand logos pakai emoji SVG & CDN bebas blokir
 const BRANDS = [
   { key:'whatsapp',  lbl:'WhatsApp',  svg:'https://cdn.simpleicons.org/whatsapp/25D366' },
@@ -258,32 +259,33 @@ function renderLinks() {
   document.getElementById('link-editor').innerHTML = links.map((l,i)=>`
     <div class="link-card" id="lc${i}">
       <div class="link-top">
-        <div class="icon-btn" onclick="togglePanel(${i},event)">${imgEl(l.icon,26)}</div>
+        <div class="icon-btn" data-idx="${i}" onclick="togglePanel(this)">${imgEl(l.icon,26)}</div>
         <div class="link-name-url" style="flex:1">
           <input type="text" value="${escHtml(l.label)}" placeholder="Nama link" oninput="links[${i}].label=this.value">
           <input type="url" value="${escHtml(l.url)}" placeholder="https://..." oninput="links[${i}].url=this.value">
         </div>
         <button class="btn btn-red" onclick="delLink(${i},${l.id})">✕</button>
       </div>
-      <div class="icon-panel" id="ip${i}">
+      <div class="icon-panel" data-for="${i}" id="ip${i}">
         <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600">PILIH LOGO BRAND</div>
         <div class="brand-grid">${BRANDS.map(b=>`
-          <div class="brand-opt${l.icon===b.key?' sel':''}" onclick="setIcon(${i},'${b.key}')">
+          <div class="brand-opt${l.icon===b.key?' sel':''}" data-idx="${i}" data-val="${b.key}" onclick="setIconByEl(this)">
             <div class="bimg">${imgEl(b.key,28)}</div>
             <div class="blbl">${b.lbl}</div>
           </div>`).join('')}
         </div>
         <div style="font-size:11px;color:var(--muted);margin:8px 0 4px;font-weight:600">ATAU EMOJI</div>
-        <div class="emoji-mini">${MINI_EMOJIS.map(e=>`<span class="em" onclick="setIcon(${i},'${e}')">${e}</span>`).join('')}</div>
+        <div class="emoji-mini">${MINI_EMOJIS.map(e=>`<span class="em" data-idx="${i}" data-val="${e}" onclick="setIconByEl(this)">${e}</span>`).join('')}</div>
       </div>
-      <button class="btn btn-green" onclick="saveLink(${i})" style="padding:8px">💾 Simpan Link Ini</button>
+      <button class="btn btn-green" data-idx="${i}" onclick="saveLinkByEl(this)" style="padding:8px">💾 Simpan Link Ini</button>
     </div>`).join('');
 }
 
 function escHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 
-function togglePanel(i,e) {
-  e.stopPropagation();
+function togglePanel(el) {
+  event.stopPropagation();
+  const i=parseInt(el.dataset.idx);
   const p=document.getElementById('ip'+i);
   if(openPanel&&openPanel!==p) openPanel.classList.remove('open');
   p.classList.toggle('open');
@@ -291,10 +293,17 @@ function togglePanel(i,e) {
 }
 document.addEventListener('click',()=>{ if(openPanel){openPanel.classList.remove('open');openPanel=null;} });
 
-function setIcon(i,val) {
+function setIconByEl(el) {
+  const i=parseInt(el.dataset.idx);
+  const val=el.dataset.val;
   links[i].icon=val;
   if(openPanel){openPanel.classList.remove('open');openPanel=null;}
   renderLinks();
+}
+
+function saveLinkByEl(el) {
+  const i=parseInt(el.dataset.idx);
+  saveLink(i);
 }
 
 async function saveLink(i) {
