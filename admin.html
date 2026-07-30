@@ -13,151 +13,137 @@ header{background:var(--card);border-bottom:0.5px solid var(--border);padding:14
 header h1{font-size:16px;font-weight:600}
 .main{display:grid;grid-template-columns:360px 1fr;gap:20px;padding:20px 24px;max-width:1280px}
 .card{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
-.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px}
+.stitle{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px}
 input[type=text],input[type=url]{width:100%;padding:8px 10px;border:0.5px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);background:#fafafa;margin-bottom:8px;font-family:inherit}
 input:focus{outline:none;border-color:var(--accent)}
-.btn{padding:7px 14px;border-radius:var(--radius);border:0.5px solid var(--border);font-size:12px;cursor:pointer;font-family:inherit;background:var(--bg)}
+.btn{padding:8px 14px;border-radius:var(--radius);border:0.5px solid var(--border);font-size:13px;cursor:pointer;font-family:inherit;background:var(--bg)}
 .btn:hover{opacity:.85}
-.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn-danger{background:none;color:var(--danger);border-color:#f7c1c1}
-.btn-save{background:var(--success);color:#fff;border-color:var(--success);width:100%;padding:10px;margin-top:6px;font-size:13px}
-.btn-add{background:var(--accent);color:#fff;border-color:var(--accent);width:100%;padding:9px;margin-top:6px;font-size:13px}
+.btn-green{background:var(--success);color:#fff;border-color:var(--success);width:100%;padding:11px;margin-top:6px;font-size:14px;font-weight:500}
+.btn-blue{background:var(--accent);color:#fff;border-color:var(--accent);width:100%;padding:10px;margin-top:6px;font-size:13px}
+.btn-red{background:none;color:var(--danger);border-color:#f7c1c1;padding:6px 10px;font-size:12px}
 
 /* Avatar */
-.avatar-area{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.avatar-preview{width:60px;height:60px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;flex-shrink:0;background:#fafafa}
-.avatar-preview img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.avatar-actions{flex:1}
-.avatar-actions label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.av-wrap{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.av-circle{width:64px;height:64px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden;flex-shrink:0;background:#fafafa}
+.av-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 
-/* Emoji picker */
-.emoji-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
-.ep{font-size:22px;cursor:pointer;padding:3px;border-radius:6px;line-height:1}
-.ep:hover,.ep.sel{background:#f0f0ee;outline:2px solid var(--accent)}
+/* Emoji */
+.emoji-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.ep{font-size:21px;cursor:pointer;padding:3px 4px;border-radius:6px;line-height:1;border:2px solid transparent}
+.ep:hover{background:#f0f0ee}
+.ep.sel{border-color:var(--accent);background:#e8f4ff}
 
 /* Wallpaper */
 .wp-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
-.wp-swatch{height:36px;border-radius:8px;cursor:pointer;border:2px solid transparent;position:relative}
-.wp-swatch.sel{border-color:var(--accent)}
-.wp-upload-btn{width:100%;padding:7px;border-radius:var(--radius);border:1px dashed var(--border);font-size:12px;cursor:pointer;background:#fafafa;color:var(--muted);margin-bottom:8px}
-.wp-preview{width:100%;height:60px;border-radius:8px;background-size:cover;background-position:center;margin-bottom:8px;border:0.5px solid var(--border)}
+.wp-sw{height:36px;border-radius:8px;cursor:pointer;border:3px solid transparent}
+.wp-sw.sel{border-color:var(--accent)}
+.wp-prev{width:100%;height:64px;border-radius:8px;background-size:cover;background-position:center;margin-bottom:8px;border:0.5px solid var(--border);display:none}
 
 /* Link editor */
-.link-row{display:flex;gap:6px;align-items:flex-start;padding:10px 0;border-bottom:0.5px solid var(--border)}
-.link-row:last-child{border-bottom:none}
-.icon-pick-wrap{position:relative}
-.icon-pick{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border:0.5px solid var(--border);border-radius:8px;cursor:pointer;flex-shrink:0;background:#fafafa;overflow:hidden}
-.icon-pick img{width:28px;height:28px;object-fit:contain}
-.icon-pick .emoji-lbl{font-size:20px}
-.icon-dropdown{position:absolute;top:46px;left:0;background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:10px;z-index:100;width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.12)}
-.icon-dropdown.hidden{display:none}
-.icon-section-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:8px 0 4px}
-.brand-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.brand-opt{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px;border-radius:8px;border:1px solid transparent}
-.brand-opt:hover{background:#f5f5f3;border-color:var(--border)}
+.link-card{background:#fafafa;border:0.5px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
+.link-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.icon-btn{width:44px;height:44px;border-radius:8px;border:0.5px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;position:relative}
+.icon-btn img{width:28px;height:28px;object-fit:contain}
+.icon-btn .ei{font-size:22px;line-height:1}
+.link-name-url{flex:1}
+.link-name-url input{margin-bottom:4px}
+.icon-panel{background:#fff;border:0.5px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;display:none}
+.icon-panel.open{display:block}
+.brand-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.brand-opt{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:7px 4px;border-radius:8px;border:2px solid transparent;background:#fafafa}
+.brand-opt:hover{background:#f0f0ee;border-color:var(--border)}
 .brand-opt.sel{border-color:var(--accent);background:#e8f4ff}
-.brand-opt img{width:28px;height:28px;object-fit:contain}
-.brand-opt span{font-size:9px;color:var(--muted)}
-.emoji-mini-row{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
-.ep-mini{font-size:18px;cursor:pointer;padding:3px;border-radius:5px}
-.ep-mini:hover{background:#f0f0ee}
-.link-fields{flex:1}
-.link-fields input{margin-bottom:4px}
+.brand-opt .bimg{width:30px;height:30px;font-size:26px;display:flex;align-items:center;justify-content:center}
+.brand-opt .blbl{font-size:10px;color:var(--muted)}
+.emoji-mini{display:flex;flex-wrap:wrap;gap:3px}
+.em{font-size:20px;cursor:pointer;padding:3px;border-radius:5px}
+.em:hover{background:#f0f0ee}
 
 /* Analytics */
-.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
-.stat-card{background:#f8f8f6;border-radius:var(--radius);padding:14px}
-.stat-label{font-size:11px;color:var(--muted);margin-bottom:4px}
-.stat-val{font-size:24px;font-weight:600}
-.stat-sub{font-size:11px;color:var(--success);margin-top:2px}
-.chart-wrap{position:relative;width:100%;height:180px;margin-bottom:14px}
-.ls-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--border)}
-.ls-row:last-child{border-bottom:none}
-.ls-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ls-icon img{width:22px;height:22px;object-fit:contain}
-.ls-emoji{font-size:18px}
-.ls-name{flex:1;font-size:13px;font-weight:500}
-.ls-bar-wrap{width:90px;height:5px;background:#eee;border-radius:3px;overflow:hidden}
-.ls-bar{height:100%;border-radius:3px;background:var(--accent)}
-.ls-count{font-size:13px;font-weight:600;min-width:28px;text-align:right}
-.ls-pct{font-size:11px;color:var(--muted);min-width:30px;text-align:right}
-.period-row{display:flex;gap:6px;margin-bottom:14px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.sc{background:#f8f8f6;border-radius:var(--radius);padding:14px}
+.sl{font-size:11px;color:var(--muted);margin-bottom:4px}
+.sv{font-size:26px;font-weight:600}
+.ss{font-size:11px;color:var(--success);margin-top:2px}
+.cw{position:relative;width:100%;height:175px;margin-bottom:14px}
+.lsr{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--border)}
+.lsr:last-child{border-bottom:none}
+.lsic{width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lsic img{width:24px;height:24px;object-fit:contain}
 .pb{padding:5px 12px;border-radius:var(--radius);border:0.5px solid var(--border);font-size:12px;cursor:pointer;background:var(--bg)}
 .pb.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .loading{color:var(--muted);font-size:13px;text-align:center;padding:20px}
-.toast{position:fixed;bottom:24px;right:24px;background:#333;color:#fff;padding:10px 18px;border-radius:var(--radius);font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+.toast{position:fixed;bottom:24px;right:24px;padding:11px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;color:#fff}
 .toast.show{opacity:1}
-.toast.ok{background:var(--success)}
-.toast.err{background:var(--danger)}
+.tok{background:var(--success)}
+.terr{background:var(--danger)}
 </style>
 </head>
 <body>
-
 <header>
   <h1>🌸 Admin — Azmayra Link Bio</h1>
   <span id="last-upd" style="font-size:12px;color:var(--muted)"></span>
 </header>
 
 <div class="main">
-<!-- ===== KIRI: EDITOR ===== -->
+<!-- KIRI -->
 <div>
   <div class="card">
-    <div class="section-title">Foto / Avatar profil</div>
-    <div class="avatar-area">
-      <div class="avatar-preview" id="av-preview">🌸</div>
-      <div class="avatar-actions">
-        <label>Upload foto profil (opsional)</label>
-        <input type="file" id="av-file" accept="image/*" onchange="previewAvatar(this)" style="font-size:12px;width:100%">
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">Atau pilih emoji di bawah</div>
+    <div class="stitle">Foto / Emoji Profil</div>
+    <div class="av-wrap">
+      <div class="av-circle" id="av-prev">🌸</div>
+      <div style="flex:1">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Upload foto profil</div>
+        <input type="file" id="av-file" accept="image/*" onchange="onAvatarFile(this)" style="font-size:12px;width:100%">
       </div>
     </div>
-    <div class="section-title">Emoji profil</div>
+    <div class="stitle">Atau pilih emoji</div>
     <div class="emoji-row" id="emoji-picker"></div>
-    <div class="section-title" style="margin-top:6px">Nama & Bio</div>
+    <div class="stitle">Nama & Bio</div>
     <input type="text" id="ed-name" placeholder="Nama">
     <input type="text" id="ed-bio" placeholder="Bio singkat">
-    <button class="btn btn-save" onclick="saveProfile()">💾 Simpan profil</button>
+    <button class="btn btn-green" onclick="saveProfile()">💾 Simpan Profil</button>
   </div>
 
   <div class="card">
-    <div class="section-title">Wallpaper / Background</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Pilih warna gradien:</div>
+    <div class="stitle">Wallpaper / Background</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Pilih gradien warna:</div>
     <div class="wp-grid" id="wp-picker"></div>
-    <div style="font-size:12px;color:var(--muted);margin:8px 0 6px">Atau upload foto produk:</div>
-    <input type="file" id="wp-file" accept="image/*" onchange="previewWp(this)" style="font-size:12px;width:100%;margin-bottom:8px">
-    <div class="wp-preview" id="wp-preview" style="display:none"></div>
-    <button class="btn btn-save" onclick="saveProfile()">💾 Simpan wallpaper</button>
+    <div style="font-size:12px;color:var(--muted);margin:8px 0 6px">Upload foto produk sebagai background:</div>
+    <input type="file" id="wp-file" accept="image/*" onchange="onWpFile(this)" style="font-size:12px;width:100%;margin-bottom:6px">
+    <div class="wp-prev" id="wp-prev"></div>
+    <button class="btn btn-green" onclick="saveProfile()">💾 Simpan Wallpaper</button>
   </div>
 
   <div class="card">
-    <div class="section-title">Daftar link</div>
+    <div class="stitle">Daftar Link</div>
     <div id="link-editor"></div>
-    <button class="btn btn-add" onclick="addLink()">+ Tambah link</button>
+    <button class="btn btn-blue" onclick="addLink()">+ Tambah Link Baru</button>
   </div>
 </div>
 
-<!-- ===== KANAN: ANALITIK ===== -->
+<!-- KANAN -->
 <div>
-  <div class="period-row">
+  <div style="display:flex;gap:6px;margin-bottom:14px">
     <button class="pb" onclick="setPeriod(7,this)">7 hari</button>
     <button class="pb active" onclick="setPeriod(30,this)">30 hari</button>
     <button class="pb" onclick="setPeriod(90,this)">90 hari</button>
   </div>
   <div class="stat-grid">
-    <div class="stat-card"><div class="stat-label">Total klik</div><div class="stat-val" id="s-total">—</div><div class="stat-sub" id="s-delta"></div></div>
-    <div class="stat-card"><div class="stat-label">Rerata / hari</div><div class="stat-val" id="s-avg">—</div><div class="stat-sub" id="s-period"></div></div>
+    <div class="sc"><div class="sl">Total klik</div><div class="sv" id="s-total">—</div><div class="ss" id="s-delta"></div></div>
+    <div class="sc"><div class="sl">Rerata / hari</div><div class="sv" id="s-avg">—</div><div class="ss" id="s-period"></div></div>
   </div>
   <div class="card">
-    <div class="section-title">Tren klik harian</div>
-    <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+    <div class="stitle">Tren Klik Harian</div>
+    <div class="cw"><canvas id="trendChart"></canvas></div>
   </div>
   <div class="card">
-    <div class="section-title">Klik per link</div>
+    <div class="stitle">Klik per Link</div>
     <div id="link-stats"><div class="loading">Memuat...</div></div>
   </div>
   <div class="card">
-    <div class="section-title">Jam tersibuk</div>
-    <div class="chart-wrap" style="height:110px"><canvas id="hourChart"></canvas></div>
+    <div class="stitle">Jam Tersibuk</div>
+    <div class="cw" style="height:110px"><canvas id="hourChart"></canvas></div>
   </div>
 </div>
 </div>
@@ -165,24 +151,28 @@ input:focus{outline:none;border-color:var(--accent)}
 <div class="toast" id="toast"></div>
 
 <script>
-// ======== CONFIG ========
 const SUPABASE_URL = 'https://lqhfdkggkmlorufswmhv.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxaGZka2dna21sb3J1ZnN3bWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzNzkzNDQsImV4cCI6MjEwMDk1NTM0NH0.mQ3Npu3aD6CPdJixrKTxYrchDOuWjsx6eWAdumVNgvo';
 
-// ======== BRAND LOGOS ========
+// Brand logos pakai emoji SVG & CDN bebas blokir
 const BRANDS = [
-  { key:'whatsapp',  label:'WhatsApp',  img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/512px-WhatsApp.svg.png' },
-  { key:'instagram', label:'Instagram', img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/512px-Instagram_icon.png' },
-  { key:'tiktok',    label:'TikTok',    img:'https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/512px-TikTok_logo.svg.png' },
-  { key:'facebook',  label:'Facebook',  img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/512px-2021_Facebook_icon.svg.png' },
-  { key:'shopee',    label:'Shopee',    img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Shopee.svg/512px-Shopee.svg.png' },
-  { key:'tokopedia', label:'Tokopedia', img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Tokopedia_App_Logo.png/512px-Tokopedia_App_Logo.png' },
-  { key:'youtube',   label:'YouTube',   img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/512px-YouTube_full-color_icon_%282017%29.svg.png' },
-  { key:'affiliate', label:'Affiliate', img:'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' },
+  { key:'whatsapp',  lbl:'WhatsApp',  svg:'https://cdn.simpleicons.org/whatsapp/25D366' },
+  { key:'instagram', lbl:'Instagram', svg:'https://cdn.simpleicons.org/instagram/E4405F' },
+  { key:'tiktok',    lbl:'TikTok',    svg:'https://cdn.simpleicons.org/tiktok/000000' },
+  { key:'facebook',  lbl:'Facebook',  svg:'https://cdn.simpleicons.org/facebook/1877F2' },
+  { key:'shopee',    lbl:'Shopee',    svg:'https://cdn.simpleicons.org/shopee/EE4D2D' },
+  { key:'tokopedia', lbl:'Tokopedia', svg:'https://cdn.simpleicons.org/tokopedia/42B549' },
+  { key:'youtube',   lbl:'YouTube',   svg:'https://cdn.simpleicons.org/youtube/FF0000' },
+  { key:'affiliate', lbl:'Affiliate', svg:'https://cdn.simpleicons.org/affiliatetheme/FF6B35' },
+  { key:'lazada',    lbl:'Lazada',    svg:'https://cdn.simpleicons.org/lazada/0F146D' },
+  { key:'twitter',   lbl:'Twitter/X', svg:'https://cdn.simpleicons.org/x/000000' },
+  { key:'telegram',  lbl:'Telegram',  svg:'https://cdn.simpleicons.org/telegram/26A5E4' },
+  { key:'line',      lbl:'LINE',      svg:'https://cdn.simpleicons.org/line/00C300' },
 ];
-const BRAND_MAP = Object.fromEntries(BRANDS.map(b => [b.key, b.img]));
-const EMOJIS = ['🔗','🏠','📸','🎵','🎬','💌','🛍','📝','💻','🎮','📱','🌐','💡','🎨','📞','⭐','🔥','💖','✨','🎯'];
-const WALLPAPERS = [
+const BRAND_MAP = Object.fromEntries(BRANDS.map(b=>[b.key,b.svg]));
+const EMOJIS = ['🌸','✨','🌙','🌊','🌺','🦋','🌈','💫','🍀','🌻','🎀','💖','🔥','🎵','🦄','🌷','🍉','☁️','⭐','🎯'];
+const MINI_EMOJIS = ['🔗','🏠','📸','🎵','🎬','💌','🛍','📝','💻','🎮','📱','🌐','💡','🎨','📞','⭐','🔥','💖'];
+const WALLS = [
   'linear-gradient(135deg,#f8a5c2,#f7b733)',
   'linear-gradient(135deg,#a29bfe,#6c5ce7)',
   'linear-gradient(135deg,#55efc4,#00b894)',
@@ -195,279 +185,242 @@ const WALLPAPERS = [
   'linear-gradient(135deg,#00cec9,#0984e3)',
 ];
 
-let profile = {};
-let links = [];
-let selBg = WALLPAPERS[0];
-let selEmoji = '🌸';
-let avatarDataUrl = null;
-let wpDataUrl = null;
-let period = 30;
-let tChart = null, hChart = null;
-let openDropdown = null;
+let profile={}, links=[], selEmoji='🌸', selBg=WALLS[0], avatarB64=null, wpB64=null, period=30;
+let tChart=null, hChart=null, openPanel=null;
 
-// ======== SUPABASE ========
-async function db(path, opts = {}) {
-  const method = opts.method || 'GET';
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
-    method,
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': opts.prefer || (method === 'POST' ? 'return=representation' : '')
-    },
+async function db(path, opts={}) {
+  const m = opts.method||'GET';
+  const r = await fetch(SUPABASE_URL+'/rest/v1/'+path, {
+    method: m,
+    headers: {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':opts.prefer||(m==='POST'?'return=representation':'')},
     body: opts.body
   });
-  if (!res.ok) throw new Error(await res.text());
-  return res.status === 204 ? null : res.json();
+  if(!r.ok) throw new Error(await r.text());
+  return r.status===204?null:r.json();
 }
 
-function toast(msg, type = 'ok') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = `toast show ${type}`;
-  setTimeout(() => t.className = 'toast', 2800);
+function toast(msg, ok=true) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+(ok?'tok':'terr');
+  setTimeout(()=>t.className='toast',2800);
 }
 
-// ======== ICON RENDER ========
-function renderIconEl(val) {
-  if (BRAND_MAP[val]) return `<img src="${BRAND_MAP[val]}" alt="${val}">`;
-  return `<span class="emoji-lbl">${val || '🔗'}</span>`;
+function imgEl(val, size=28) {
+  if(BRAND_MAP[val]) return `<img src="${BRAND_MAP[val]}" style="width:${size}px;height:${size}px;object-fit:contain">`;
+  return `<span style="font-size:${size*0.85}px;line-height:1">${val||'🔗'}</span>`;
 }
 
-// ======== AVATAR ========
-function previewAvatar(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    avatarDataUrl = e.target.result;
-    const av = document.getElementById('av-preview');
-    av.innerHTML = `<img src="${avatarDataUrl}" alt="avatar">`;
-  };
-  reader.readAsDataURL(file);
+// ---- AVATAR ----
+function onAvatarFile(inp) {
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{ avatarB64=e.target.result; document.getElementById('av-prev').innerHTML=`<img src="${avatarB64}" alt="av">`; };
+  r.readAsDataURL(f);
 }
 
-// ======== EMOJI PICKER ========
-function buildEmojiPicker() {
-  document.getElementById('emoji-picker').innerHTML = EMOJIS.map(e =>
-    `<span class="ep${e===selEmoji?' sel':''}" onclick="setEmoji('${e}')">${e}</span>`
-  ).join('');
+// ---- EMOJI ----
+function buildEmoji() {
+  document.getElementById('emoji-picker').innerHTML=EMOJIS.map(e=>`<span class="ep${e===selEmoji?' sel':''}" onclick="pickEmoji('${e}')">${e}</span>`).join('');
 }
-function setEmoji(e) {
-  selEmoji = e; avatarDataUrl = null;
-  document.getElementById('av-preview').textContent = e;
-  document.getElementById('av-file').value = '';
-  document.querySelectorAll('.ep').forEach(el => el.classList.toggle('sel', el.textContent === e));
+function pickEmoji(e) {
+  selEmoji=e; avatarB64=null;
+  document.getElementById('av-prev').textContent=e;
+  document.getElementById('av-file').value='';
+  document.querySelectorAll('.ep').forEach(el=>el.classList.toggle('sel',el.textContent===e));
 }
 
-// ======== WALLPAPER ========
-function buildWpPicker() {
-  document.getElementById('wp-picker').innerHTML = WALLPAPERS.map(w =>
-    `<div class="wp-swatch${w===selBg?' sel':''}" style="background:${w}" onclick="setWp('${w}',this)"></div>`
-  ).join('');
+// ---- WALLPAPER ----
+function buildWp() {
+  document.getElementById('wp-picker').innerHTML=WALLS.map(w=>`<div class="wp-sw${w===selBg?' sel':''}" style="background:${w}" onclick="pickWp('${w}',this)"></div>`).join('');
 }
-function setWp(w, el) {
-  selBg = w; wpDataUrl = null;
-  document.getElementById('wp-preview').style.display = 'none';
-  document.getElementById('wp-file').value = '';
-  document.querySelectorAll('.wp-swatch').forEach(x => x.classList.remove('sel'));
+function pickWp(w,el) {
+  selBg=w; wpB64=null;
+  document.getElementById('wp-file').value='';
+  document.getElementById('wp-prev').style.display='none';
+  document.querySelectorAll('.wp-sw').forEach(x=>x.classList.remove('sel'));
   el.classList.add('sel');
 }
-function previewWp(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    wpDataUrl = e.target.result;
-    selBg = null;
-    document.querySelectorAll('.wp-swatch').forEach(x => x.classList.remove('sel'));
-    const prev = document.getElementById('wp-preview');
-    prev.style.backgroundImage = `url('${wpDataUrl}')`;
-    prev.style.display = 'block';
+function onWpFile(inp) {
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    wpB64=e.target.result; selBg=null;
+    document.querySelectorAll('.wp-sw').forEach(x=>x.classList.remove('sel'));
+    const p=document.getElementById('wp-prev');
+    p.style.backgroundImage=`url('${wpB64}')`;
+    p.style.display='block';
   };
-  reader.readAsDataURL(file);
+  r.readAsDataURL(f);
 }
 
-// ======== LINK EDITOR ========
-function renderLinkEditor() {
-  document.getElementById('link-editor').innerHTML = links.map((l, i) => `
-    <div class="link-row">
-      <div class="icon-pick-wrap">
-        <div class="icon-pick" onclick="toggleDropdown(${i},event)">${renderIconEl(l.icon)}</div>
-        <div class="icon-dropdown hidden" id="dd${i}">
-          <div class="icon-section-lbl">Logo brand</div>
-          <div class="brand-grid">${BRANDS.map(b => `
-            <div class="brand-opt${l.icon===b.key?' sel':''}" onclick="setIcon(${i},'${b.key}')">
-              <img src="${b.img}" alt="${b.label}">
-              <span>${b.label}</span>
-            </div>`).join('')}
-          </div>
-          <div class="icon-section-lbl">Emoji</div>
-          <div class="emoji-mini-row">${EMOJIS.map(e => `<span class="ep-mini" onclick="setIcon(${i},'${e}')">${e}</span>`).join('')}</div>
+// ---- LINK EDITOR ----
+function renderLinks() {
+  document.getElementById('link-editor').innerHTML = links.map((l,i)=>`
+    <div class="link-card" id="lc${i}">
+      <div class="link-top">
+        <div class="icon-btn" onclick="togglePanel(${i},event)">${imgEl(l.icon,26)}</div>
+        <div class="link-name-url" style="flex:1">
+          <input type="text" value="${escHtml(l.label)}" placeholder="Nama link" oninput="links[${i}].label=this.value">
+          <input type="url" value="${escHtml(l.url)}" placeholder="https://..." oninput="links[${i}].url=this.value">
         </div>
+        <button class="btn btn-red" onclick="delLink(${i},${l.id})">✕</button>
       </div>
-      <div class="link-fields">
-        <input type="text" value="${l.label}" placeholder="Nama link" oninput="links[${i}].label=this.value">
-        <input type="url" value="${l.url}" placeholder="https://..." oninput="links[${i}].url=this.value">
+      <div class="icon-panel" id="ip${i}">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600">PILIH LOGO BRAND</div>
+        <div class="brand-grid">${BRANDS.map(b=>`
+          <div class="brand-opt${l.icon===b.key?' sel':''}" onclick="setIcon(${i},'${b.key}')">
+            <div class="bimg">${imgEl(b.key,28)}</div>
+            <div class="blbl">${b.lbl}</div>
+          </div>`).join('')}
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin:8px 0 4px;font-weight:600">ATAU EMOJI</div>
+        <div class="emoji-mini">${MINI_EMOJIS.map(e=>`<span class="em" onclick="setIcon(${i},'${e}')">${e}</span>`).join('')}</div>
       </div>
-      <button class="btn btn-danger" onclick="deleteLink(${i},${l.id})">✕</button>
+      <button class="btn btn-green" onclick="saveLink(${i})" style="padding:8px">💾 Simpan Link Ini</button>
     </div>`).join('');
 }
 
-function toggleDropdown(i, e) {
-  e.stopPropagation();
-  const dd = document.getElementById('dd'+i);
-  if (openDropdown && openDropdown !== dd) openDropdown.classList.add('hidden');
-  dd.classList.toggle('hidden');
-  openDropdown = dd.classList.contains('hidden') ? null : dd;
-}
-document.addEventListener('click', () => { if(openDropdown) { openDropdown.classList.add('hidden'); openDropdown = null; } });
+function escHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 
-function setIcon(i, val) {
-  links[i].icon = val;
-  if (openDropdown) { openDropdown.classList.add('hidden'); openDropdown = null; }
-  renderLinkEditor();
+function togglePanel(i,e) {
+  e.stopPropagation();
+  const p=document.getElementById('ip'+i);
+  if(openPanel&&openPanel!==p) openPanel.classList.remove('open');
+  p.classList.toggle('open');
+  openPanel=p.classList.contains('open')?p:null;
+}
+document.addEventListener('click',()=>{ if(openPanel){openPanel.classList.remove('open');openPanel=null;} });
+
+function setIcon(i,val) {
+  links[i].icon=val;
+  if(openPanel){openPanel.classList.remove('open');openPanel=null;}
+  renderLinks();
+}
+
+async function saveLink(i) {
+  const l=links[i];
+  try {
+    if(l.id) {
+      await db(`az_links?id=eq.${l.id}`,{method:'PATCH',prefer:'return=minimal',body:JSON.stringify({icon:l.icon,label:l.label,url:l.url})});
+    } else {
+      const [nl]=await db('az_links',{method:'POST',body:JSON.stringify({icon:l.icon,label:l.label,url:l.url,sort_order:i+1})});
+      links[i]=nl;
+    }
+    toast('✅ Link disimpan!');
+  } catch(e){ toast('Gagal: '+e.message,false); }
 }
 
 async function addLink() {
-  try {
-    const [newLink] = await db('az_links', {
-      method: 'POST',
-      body: JSON.stringify({ icon:'🔗', label:'Link Baru', url:'https://azmayra.com', sort_order: links.length+1 })
-    });
-    links.push(newLink);
-    renderLinkEditor();
-    toast('✅ Link ditambahkan');
-  } catch(e) { toast('Gagal tambah link: ' + e.message, 'err'); }
+  links.push({id:null,icon:'🔗',label:'Link Baru',url:'https://'});
+  renderLinks();
+  // scroll ke bawah
+  setTimeout(()=>{ const lc=document.getElementById('lc'+(links.length-1)); if(lc) lc.scrollIntoView({behavior:'smooth',block:'center'}); },100);
 }
 
-async function deleteLink(i, id) {
-  if (!confirm('Hapus link ini?')) return;
+async function delLink(i,id) {
+  if(!confirm('Hapus link ini?')) return;
   try {
-    await db(`az_links?id=eq.${id}`, { method: 'DELETE', prefer:'return=minimal' });
-    links.splice(i, 1);
-    renderLinkEditor();
-    toast('Link dihapus');
-    loadAnalytics();
-  } catch(e) { toast('Gagal hapus', 'err'); }
+    if(id) await db(`az_links?id=eq.${id}`,{method:'DELETE',prefer:'return=minimal'});
+    links.splice(i,1); renderLinks(); toast('Link dihapus'); loadAnalytics();
+  } catch(e){ toast('Gagal hapus',false); }
 }
 
-// ======== SAVE PROFILE ========
+// ---- SAVE PROFILE ----
 async function saveProfile() {
   try {
-    const bgVal = wpDataUrl || selBg;
-    await db('az_profile?id=eq.1', {
-      method: 'PATCH', prefer: 'return=minimal',
-      body: JSON.stringify({
-        name: document.getElementById('ed-name').value,
-        bio: document.getElementById('ed-bio').value,
-        emoji: selEmoji,
-        background: bgVal,
-        avatar_url: avatarDataUrl || null,
-        updated_at: new Date().toISOString()
-      })
-    });
-    for (const l of links) {
-      await db(`az_links?id=eq.${l.id}`, {
-        method: 'PATCH', prefer: 'return=minimal',
-        body: JSON.stringify({ icon: l.icon, label: l.label, url: l.url })
-      });
-    }
-    toast('✅ Tersimpan!');
-  } catch(e) { toast('Gagal: ' + e.message, 'err'); }
+    const bgVal = wpB64||selBg;
+    await db('az_profile?id=eq.1',{method:'PATCH',prefer:'return=minimal',body:JSON.stringify({
+      name:document.getElementById('ed-name').value,
+      bio:document.getElementById('ed-bio').value,
+      emoji:selEmoji, background:bgVal,
+      avatar_url:avatarB64||null,
+      updated_at:new Date().toISOString()
+    })});
+    toast('✅ Profil & wallpaper tersimpan!');
+  } catch(e){ toast('Gagal simpan: '+e.message,false); }
 }
 
-// ======== ANALITIK ========
-function setPeriod(p, btn) {
-  period = p;
-  document.querySelectorAll('.pb').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  loadAnalytics();
+// ---- ANALYTICS ----
+function setPeriod(p,btn) {
+  period=p;
+  document.querySelectorAll('.pb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); loadAnalytics();
 }
 
 async function loadAnalytics() {
-  const since = new Date(); since.setDate(since.getDate() - period);
+  const since=new Date(); since.setDate(since.getDate()-period);
   try {
-    const clicks = await db(`az_clicks?clicked_at=gte.${since.toISOString()}&select=link_id,link_label,clicked_at&order=clicked_at.asc`);
-    const total = clicks.length;
-    document.getElementById('s-total').textContent = total.toLocaleString('id');
-    document.getElementById('s-avg').textContent = Math.round(total/period);
-    document.getElementById('s-period').textContent = `${period} hari terakhir`;
-    document.getElementById('last-upd').textContent = 'Update ' + new Date().toLocaleTimeString('id');
+    const clicks=await db(`az_clicks?clicked_at=gte.${since.toISOString()}&select=link_label,clicked_at&order=clicked_at.asc`);
+    const total=clicks.length;
+    document.getElementById('s-total').textContent=total.toLocaleString('id');
+    document.getElementById('s-avg').textContent=Math.round(total/period);
+    document.getElementById('s-period').textContent=period+' hari terakhir';
+    document.getElementById('last-upd').textContent='Update '+new Date().toLocaleTimeString('id');
 
-    const byDay = {};
-    clicks.forEach(c => { const d = c.clicked_at.slice(0,10); byDay[d] = (byDay[d]||0)+1; });
-    const days = Array.from({length:period},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-(period-1-i)); return d.toISOString().slice(0,10); });
-    if (tChart) tChart.destroy();
-    tChart = new Chart(document.getElementById('trendChart'), {
+    const byDay={};
+    clicks.forEach(c=>{const d=c.clicked_at.slice(0,10);byDay[d]=(byDay[d]||0)+1;});
+    const days=Array.from({length:period},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(period-1-i));return d.toISOString().slice(0,10);});
+    if(tChart) tChart.destroy();
+    tChart=new Chart(document.getElementById('trendChart'),{
       type:'line',
-      data:{ labels: days.map(d=>{ const[,m,dy]=d.split('-'); return `${parseInt(dy)}/${parseInt(m)}`; }), datasets:[{label:'Klik',data:days.map(d=>byDay[d]||0),borderColor:'#378ADD',backgroundColor:'#378ADD22',borderWidth:2,pointRadius:0,tension:0.35,fill:true}] },
-      options:{ responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{ x:{grid:{display:false},ticks:{color:'#aaa',font:{size:10},maxTicksLimit:10}},y:{grid:{color:'#eee'},ticks:{color:'#aaa',font:{size:10}},border:{display:false}} } }
+      data:{labels:days.map(d=>{const[,m,dy]=d.split('-');return`${parseInt(dy)}/${parseInt(m)}`;}),
+            datasets:[{label:'Klik',data:days.map(d=>byDay[d]||0),borderColor:'#378ADD',backgroundColor:'#378ADD22',borderWidth:2,pointRadius:0,tension:0.35,fill:true}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#aaa',font:{size:10},maxTicksLimit:10}},y:{grid:{color:'#eee'},ticks:{color:'#aaa',font:{size:10}},border:{display:false}}}}
     });
 
-    const byLink = {};
-    clicks.forEach(c => { byLink[c.link_label] = (byLink[c.link_label]||0)+1; });
-    const sorted = Object.entries(byLink).sort((a,b)=>b[1]-a[1]);
-    const linkIconMap = Object.fromEntries(links.map(l=>[l.label,l.icon]));
-    document.getElementById('link-stats').innerHTML = sorted.length
-      ? sorted.map(([label,count])=>{
-          const iconVal = linkIconMap[label] || '🔗';
-          const iconHtml = BRAND_MAP[iconVal] ? `<img src="${BRAND_MAP[iconVal]}" style="width:22px;height:22px;object-fit:contain">` : `<span class="ls-emoji">${iconVal}</span>`;
-          return `<div class="ls-row"><div class="ls-icon">${iconHtml}</div><div class="ls-name">${label}</div><div class="ls-bar-wrap"><div class="ls-bar" style="width:${Math.round(count/sorted[0][1]*100)}%"></div></div><div class="ls-count">${count}</div><div class="ls-pct">${Math.round(count/total*100)}%</div></div>`;
-        }).join('')
+    const byLink={};
+    clicks.forEach(c=>{byLink[c.link_label]=(byLink[c.link_label]||0)+1;});
+    const sorted=Object.entries(byLink).sort((a,b)=>b[1]-a[1]);
+    const iconMap=Object.fromEntries(links.map(l=>[l.label,l.icon]));
+    document.getElementById('link-stats').innerHTML=sorted.length
+      ? sorted.map(([lbl,cnt])=>`
+          <div class="lsr">
+            <div class="lsic">${imgEl(iconMap[lbl]||'🔗',22)}</div>
+            <div style="flex:1;font-size:13px;font-weight:500">${lbl}</div>
+            <div style="width:80px;height:5px;background:#eee;border-radius:3px;overflow:hidden"><div style="height:100%;border-radius:3px;background:var(--accent);width:${Math.round(cnt/sorted[0][1]*100)}%"></div></div>
+            <div style="font-size:13px;font-weight:600;min-width:28px;text-align:right">${cnt}</div>
+            <div style="font-size:11px;color:var(--muted);min-width:30px;text-align:right">${Math.round(cnt/total*100)}%</div>
+          </div>`).join('')
       : '<div class="loading">Belum ada klik tercatat</div>';
 
-    const byHour = Array(24).fill(0);
-    clicks.forEach(c=>{ byHour[new Date(c.clicked_at).getHours()]++; });
-    const peak = byHour.indexOf(Math.max(...byHour));
-    if (hChart) hChart.destroy();
-    hChart = new Chart(document.getElementById('hourChart'), {
+    const byHour=Array(24).fill(0);
+    clicks.forEach(c=>{byHour[new Date(c.clicked_at).getHours()]++;});
+    const peak=byHour.indexOf(Math.max(...byHour));
+    if(hChart) hChart.destroy();
+    hChart=new Chart(document.getElementById('hourChart'),{
       type:'bar',
-      data:{ labels:Array.from({length:24},(_,i)=>i%3===0?`${String(i).padStart(2,'0')}:00`:''), datasets:[{data:byHour,backgroundColor:byHour.map((_,i)=>i===peak?'#378ADD':'#378ADD44'),borderRadius:3,borderSkipped:false}] },
-      options:{ responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:c=>`Pukul ${String(c[0].dataIndex).padStart(2,'0')}:00`,label:c=>`${c.raw} klik`}}},scales:{ x:{grid:{display:false},ticks:{color:'#aaa',font:{size:10}}},y:{grid:{color:'#eee'},ticks:{color:'#aaa',font:{size:10}},border:{display:false}} } }
+      data:{labels:Array.from({length:24},(_,i)=>i%3===0?String(i).padStart(2,'0')+':00':''),
+            datasets:[{data:byHour,backgroundColor:byHour.map((_,i)=>i===peak?'#378ADD':'#378ADD44'),borderRadius:3,borderSkipped:false}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:c=>`Pukul ${String(c[0].dataIndex).padStart(2,'0')}:00`,label:c=>`${c.raw} klik`}}},scales:{x:{grid:{display:false},ticks:{color:'#aaa',font:{size:10}}},y:{grid:{color:'#eee'},ticks:{color:'#aaa',font:{size:10}},border:{display:false}}}}
     });
-  } catch(e) { document.getElementById('link-stats').innerHTML=`<div class="loading">Error: ${e.message}</div>`; }
+  } catch(e){ document.getElementById('link-stats').innerHTML=`<div class="loading">Error: ${e.message}</div>`; }
 }
 
-// ======== LOAD DATA ========
-async function loadAll() {
+// ---- INIT ----
+async function init() {
   try {
-    const [profiles, lnks] = await Promise.all([
-      db('az_profile?select=*&limit=1'),
-      db('az_links?select=*&order=sort_order.asc')
-    ]);
-    profile = profiles[0] || {};
-    selEmoji = profile.emoji || '🌸';
-    selBg = profile.background && !profile.background.startsWith('http') && !profile.background.startsWith('data:') ? profile.background : WALLPAPERS[0];
-    document.getElementById('ed-name').value = profile.name || 'Azmayra';
-    document.getElementById('ed-bio').value = profile.bio || '';
-    const av = document.getElementById('av-preview');
-    if (profile.avatar_url) { av.innerHTML = `<img src="${profile.avatar_url}" alt="avatar">`; }
-    else { av.textContent = selEmoji; }
-    if (profile.background && (profile.background.startsWith('http')||profile.background.startsWith('data:'))) {
-      wpDataUrl = profile.background;
-      const prev = document.getElementById('wp-preview');
-      prev.style.backgroundImage = `url('${wpDataUrl}')`;
-      prev.style.display = 'block';
+    const [profs,lnks]=await Promise.all([db('az_profile?select=*&limit=1'),db('az_links?select=*&order=sort_order.asc')]);
+    profile=profs[0]||{};
+    selEmoji=profile.emoji||'🌸';
+    const av=document.getElementById('av-prev');
+    if(profile.avatar_url){av.innerHTML=`<img src="${profile.avatar_url}" alt="av">`;}
+    else{av.textContent=selEmoji;}
+    document.getElementById('ed-name').value=profile.name||'Azmayra';
+    document.getElementById('ed-bio').value=profile.bio||'';
+    if(profile.background){
+      if(profile.background.startsWith('http')||profile.background.startsWith('data:')){
+        wpB64=profile.background;
+        const p=document.getElementById('wp-prev');
+        p.style.backgroundImage=`url('${wpB64}')`;
+        p.style.display='block';
+        selBg=null;
+      } else { selBg=profile.background; }
     }
-    links = lnks;
-    buildEmojiPicker(); buildWpPicker(); renderLinkEditor();
-  } catch(e) { buildEmojiPicker(); buildWpPicker(); }
+    links=lnks;
+    buildEmoji(); buildWp(); renderLinks();
+  } catch(e){ buildEmoji(); buildWp(); toast('Gagal load: cek SUPABASE_KEY',false); }
 }
-
-// Tambah kolom avatar_url jika belum ada
-async function ensureAvatarColumn() {
-  try {
-    await fetch(SUPABASE_URL + '/rest/v1/rpc/exec_sql', {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sql: 'ALTER TABLE az_profile ADD COLUMN IF NOT EXISTS avatar_url TEXT;' })
-    });
-  } catch(e) {}
-}
-
-loadAll();
-loadAnalytics();
+init(); loadAnalytics();
 </script>
 </body>
 </html>
