@@ -1,7 +1,7 @@
 # AZMAYRA Link Bio
 
-Halaman publik: `https://linkbio-azmayra.vercel.app/`  
-Editor: `https://linkbio-azmayra.vercel.app/admin.html`
+Halaman publik: `https://klik-linkbio-azmayra.vercel.app/`  
+Editor: `https://klik-linkbio-azmayra.vercel.app/admin.html`
 
 Alias `https://linkbio-azmayra-git-main-azmayra.vercel.app/` dan `https://linkbio-azmayra-azmayra.vercel.app/` dialihkan ke alamat publik utama melalui `vercel.json`.
 

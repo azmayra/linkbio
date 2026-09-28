@@ -9,7 +9,7 @@
           "value": "linkbio-azmayra-git-main-azmayra.vercel.app"
         }
       ],
-      "destination": "https://linkbio-azmayra.vercel.app/:path*",
+      "destination": "https://klik-linkbio-azmayra.vercel.app/:path*",
       "permanent": true
     },
     {
@@ -20,7 +20,7 @@
           "value": "linkbio-azmayra-azmayra.vercel.app"
         }
       ],
-      "destination": "https://linkbio-azmayra.vercel.app/:path*",
+      "destination": "https://klik-linkbio-azmayra.vercel.app/:path*",
       "permanent": true
     }
   ]

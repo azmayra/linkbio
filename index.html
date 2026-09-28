@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AZMAYRA | Muslimah Activewear</title>
 <meta name="description" content="Temukan koleksi AZMAYRA Muslimah Activewear, konsultasi produk via WhatsApp, dan belanja melalui toko resmi.">
-<link rel="canonical" href="https://linkbio-azmayra.vercel.app/">
+<link rel="canonical" href="https://klik-linkbio-azmayra.vercel.app/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AZMAYRA">
 <meta property="og:title" content="AZMAYRA | Muslimah Activewear">
 <meta property="og:description" content="Move Freely, Live Modestly. Konsultasi produk dan temukan koleksi AZMAYRA di sini.">
-<meta property="og:url" content="https://linkbio-azmayra.vercel.app/">
-<meta property="og:image" content="https://linkbio-azmayra.vercel.app/assets/azmayra-mark.png">
+<meta property="og:url" content="https://klik-linkbio-azmayra.vercel.app/">
+<meta property="og:image" content="https://klik-linkbio-azmayra.vercel.app/assets/azmayra-mark.png">
 <meta property="og:image:alt" content="Logo AZMAYRA">
 <meta name="twitter:card" content="summary">
 <style>
@@ -95,7 +95,7 @@ function track(link,url,type){
 
 async function init(){
   try{
-    const[profs,lnks]=await Promise.all([dbGet('az_profile?select=*&limit=1'),dbGet('az_links?select=*&active=eq.true&order=sort_order.asc')]);
+    const[profs,lnks]=await Promise.all([dbGet('az_profile?select=*&limit=1'),dbGet('az_links?select=id,icon,label,url,link_type,sort_order&active=eq.true&order=sort_order.asc')]);
     const p=profs[0]||{};
     if(p.background){
       if(p.background.startsWith('http')||p.background.startsWith('data:')){document.body.style.backgroundImage=`url('${p.background}')`;document.body.style.backgroundSize='cover';}
