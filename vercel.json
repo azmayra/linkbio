@@ -9,7 +9,18 @@
           "value": "linkbio-azmayra-git-main-azmayra.vercel.app"
         }
       ],
-      "destination": "https://linkbio-azmayra-azmayra.vercel.app/:path*",
+      "destination": "https://linkbio-azmayra.vercel.app/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "linkbio-azmayra-azmayra.vercel.app"
+        }
+      ],
+      "destination": "https://linkbio-azmayra.vercel.app/:path*",
       "permanent": true
     }
   ]
