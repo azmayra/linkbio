@@ -9,6 +9,8 @@ Masuk ke editor, lalu untuk setiap link isi nama, URL, dan jenis tujuan. Pilih W
 
 Tombol **Link Shopee** di halaman utama membuka `/shopee.html`. Di editor, klik **Tambah Produk Shopee**, isi nama produk, URL Shopee langsung, dan satu foto produk. Setiap entri Shopee muncul sebagai kartu foto tersendiri di halaman itu. Klik kartu membuka URL Shopee pada tab baru. Kartu awal **Toko Shopee AZMAYRA** memakai gambar logo dan tautan toko sebagai contoh yang dapat diganti.
 
+Disiapkan **10 slot Shopee**: kartu toko aktif sementara dan sembilan draf produk. Draf tidak tampil ke pengunjung. Edit slot pertama menjadi produk pertama jika sudah ada foto dan URL produk, lalu aktifkan draf lainnya satu per satu. Editor mewajibkan URL serta foto sebelum sebuah produk Shopee boleh ditampilkan dan membatasi total kartu Shopee menjadi sepuluh.
+
 ## Pengaturan Vercel
 
 Tambahkan variabel berikut pada project `linkbio-azmayra`, untuk Production dan Preview, lalu deploy ulang:
