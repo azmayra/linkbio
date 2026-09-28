@@ -1,40 +1,38 @@
-# Azmayra Linktree + Analitik Supabase
+# AZMAYRA Link Bio
 
-## Langkah Setup
+Halaman publik: `https://linkbio-azmayra.vercel.app/`  
+Editor: `https://linkbio-azmayra.vercel.app/admin.html`
 
-### 1. Buat tabel di Supabase
+## Yang dapat diedit
 
-Buka **Supabase Dashboard → SQL Editor**, jalankan isi file `supabase-setup.sql`.
+Masuk ke editor, lalu untuk setiap link isi nama, URL, dan jenis tujuan. Pilih WhatsApp, landing page, Shopee, atau link lain. Untuk kartu Shopee, isi URL foto produk atau unggah gambar; foto yang diunggah diperkecil sebelum disimpan. Klik **Simpan Link Ini** pada setiap kartu. Hanya URL `https://` atau `http://` yang diterima. URL tanpa awalan akan diberi `https://`.
 
-### 2. Dapatkan kredensial Supabase
+## Pengaturan Vercel
 
-Di Supabase Dashboard → **Project Settings → API**:
-- Copy `Project URL` → isi ke `SUPABASE_URL` di semua file
-- Copy `anon public key` → isi ke `SUPABASE_ANON_KEY` di semua file
+Tambahkan variabel berikut pada project `linkbio-azmayra`, untuk Production dan Preview, lalu deploy ulang:
 
-### 3. Deploy file
+| Variabel | Isi |
+| --- | --- |
+| `LINKBIO_ADMIN_PASSWORD` | Kata sandi kuat khusus editor Link Bio |
+| `SUPABASE_SERVICE_ROLE_KEY` | Kunci rahasia service role dari project Supabase **Azmayra Link Bio**; jangan taruh di HTML/GitHub |
+| `SUPABASE_URL` | `https://lqhfdkggkmlorufswmhv.supabase.co` (opsional) |
+| `META_PIXEL_ID` | ID dataset/pixel website yang ingin dipakai, hanya angka |
+| `META_CAPI_ACCESS_TOKEN` | Token Conversions API untuk dataset/pixel yang sama, simpan hanya di Vercel |
 
-| File | Fungsi |
-|------|--------|
-| `index.html` | Halaman publik azmayra.com — yang dilihat pengunjung |
-| `admin.html` | Panel editor + analitik — khusus kamu |
-| `supabase-setup.sql` | SQL untuk membuat tabel di Supabase |
+Editor memerlukan dua variabel pertama. Tanpa `META_PIXEL_ID`, Pixel tidak memuat. Tanpa `META_CAPI_ACCESS_TOKEN`, event browser masih berjalan dan pengiriman server dinonaktifkan. Jangan memakai token Meta Social atau Meta Ads sebagai pengganti token CAPI.
 
-### 4. Upload ke hosting
+Project Supabase `lqhfdkggkmlorufswmhv` harus berstatus aktif. Migrasi `supabase-setup.sql` menambah jenis link dan foto produk serta menutup pembacaan analitik dari publik. Terapkan migrasi satu kali jika menyiapkan project baru.
 
-Upload `index.html` ke root domain `azmayra.com`.
-Upload `admin.html` ke `azmayra.com/admin` (proteksi dengan password server jika perlu).
+## Peta event
 
----
+| Aksi pengunjung | Meta event | Detail |
+| --- | --- | --- |
+| Buka halaman Link Bio | `PageView` browser | Tampilan halaman |
+| Klik tombol WhatsApp | `Contact` browser + CAPI | Niat menghubungi, belum tentu percakapan terjadi |
+| Klik link landing page | `LinkBioClick` browser + CAPI | Parameter `destination: lp` |
+| Klik produk Shopee | `LinkBioClick` browser + CAPI | Parameter `destination: shopee`, belum tentu pembelian |
+| Klik link lain | `LinkBioClick` browser + CAPI | Parameter `destination: other` |
 
-## Cara kerja analitik
+Pixel dan CAPI memakai `event_id` yang sama pada satu klik agar Meta dapat menghapus duplikasi. Di Events Manager → Test Events, klik masing-masing jenis tautan dan pastikan event browser dan server muncul sebagai satu peristiwa. Untuk laporan terpisah, buat Custom Conversion dari `LinkBioClick` dengan aturan `destination = lp` atau `destination = shopee`. `Purchase` hanya dikirim saat transaksi benar-benar terkonfirmasi oleh sistem pesanan.
 
-Setiap kali pengunjung klik link di `index.html`, sistem:
-1. Mencatat klik ke tabel `link_clicks` di Supabase (link_id, label, url, jam klik)
-2. `admin.html` membaca data nyata dari Supabase dan menampilkan grafik
-
-Data yang dicatat per klik:
-- `link_id` — ID link yang diklik
-- `link_label` — nama link
-- `clicked_at` — waktu klik (timestamp)
-- `referrer` — dari mana pengunjung datang
+Kontrol akses editor ada pada endpoint `/api/admin`. Kunci service role dan token Meta hanya dibaca di server; browser hanya melihat ID Pixel yang bersifat publik.

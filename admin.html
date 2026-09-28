@@ -14,7 +14,7 @@ header h1{font-size:16px;font-weight:600}
 .main{display:grid;grid-template-columns:360px 1fr;gap:20px;padding:20px 24px;max-width:1280px}
 .card{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
 .stitle{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px}
-input[type=text],input[type=url]{width:100%;padding:8px 10px;border:0.5px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);background:#fafafa;margin-bottom:8px;font-family:inherit}
+input[type=text],input[type=url],select{width:100%;padding:8px 10px;border:0.5px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);background:#fafafa;margin-bottom:8px;font-family:inherit}
 input:focus{outline:none;border-color:var(--accent)}
 .btn{padding:8px 14px;border-radius:var(--radius);border:0.5px solid var(--border);font-size:13px;cursor:pointer;font-family:inherit;background:var(--bg)}
 .btn:hover{opacity:.85}
@@ -82,8 +82,9 @@ input:focus{outline:none;border-color:var(--accent)}
 <body>
 <header>
   <h1>🌸 Admin — Azmayra Link Bio</h1>
-  <span id="last-upd" style="font-size:12px;color:var(--muted)"></span>
+  <div><span id="last-upd" style="font-size:12px;color:var(--muted)"></span> <button class="btn" onclick="logout()">Keluar</button></div>
 </header>
+<div id="login" style="position:fixed;inset:0;background:#f5f5f3;z-index:30;display:grid;place-items:center;padding:20px"><div class="card" style="width:min(380px,100%)"><h2 style="margin-bottom:10px">Masuk Admin Link Bio</h2><p style="font-size:12px;color:#666;margin-bottom:14px">Masukkan kata sandi pengelola.</p><input id="admin-password" type="password" placeholder="Kata sandi" style="width:100%;padding:10px;margin-bottom:8px"><button class="btn btn-green" onclick="login()">Masuk</button><p id="login-error" style="font-size:12px;color:#c33;margin-top:10px"></p></div></div>
 
 <div class="main">
 <!-- KIRI -->
@@ -117,6 +118,7 @@ input:focus{outline:none;border-color:var(--accent)}
 
   <div class="card">
     <div class="stitle">Daftar Link</div>
+    <p style="font-size:12px;color:var(--muted);margin:0 0 12px">Pilih tujuan, isi URL lengkap, lalu simpan setiap link. Foto produk tampil pada kartu Shopee.</p>
     <div id="link-editor"></div>
     <button class="btn btn-blue" onclick="addLink()">+ Tambah Link Baru</button>
   </div>
@@ -191,14 +193,18 @@ let tChart=null, hChart=null, openPanel=null;
 
 async function db(path, opts={}) {
   const m = opts.method||'GET';
-  const r = await fetch(SUPABASE_URL+'/rest/v1/'+path, {
+  const r = await fetch('/api/admin?path='+encodeURIComponent(path), {
     method: m,
-    headers: {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':opts.prefer||(m==='POST'?'return=representation':'')},
+    headers: {'Content-Type':'application/json','Prefer':opts.prefer||(m==='POST'?'return=representation':'')},
     body: opts.body
   });
-  if(!r.ok) throw new Error(await r.text());
-  return r.status===204?null:r.json();
+  if(!r.ok){const e=await r.json().catch(()=>({error:'Gagal menghubungi server'}));throw new Error(e.error||JSON.stringify(e))}
+  const text=await r.text();return text?JSON.parse(text):null;
 }
+async function login(){const password=document.getElementById('admin-password').value;
+  try{const r=await fetch('/api/admin?action=login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})});const data=await r.json();if(!r.ok)throw Error(data.error||'Gagal masuk');document.getElementById('admin-password').value='';document.getElementById('login').style.display='none';await init();await loadAnalytics();}
+  catch(e){document.getElementById('login-error').textContent=e.message}}
+async function logout(){await fetch('/api/admin?action=logout',{method:'POST'});location.reload()}
 
 function toast(msg, ok=true) {
   const t=document.getElementById('toast');
@@ -264,8 +270,15 @@ function renderLinks() {
           <input type="text" value="${escHtml(l.label)}" placeholder="Nama link" oninput="links[${i}].label=this.value">
           <input type="url" value="${escHtml(l.url)}" placeholder="https://..." oninput="links[${i}].url=this.value">
         </div>
-        <button class="btn btn-red" onclick="delLink(${i},${l.id})">✕</button>
+        <button class="btn btn-red" onclick="delLink(${i},${Number(l.id)||0})">✕</button>
       </div>
+      <label style="font-size:11px;color:var(--muted)">Jenis tujuan untuk event Meta</label>
+      <select onchange="links[${i}].link_type=this.value">
+        ${[['other','Link lain'],['wa','WhatsApp (Contact)'],['lp','Landing page (LinkBioClick)'],['shopee','Shopee (LinkBioClick)']].map(([v,t])=>`<option value="${v}"${(l.link_type||guessType(l))===v?' selected':''}>${t}</option>`).join('')}
+      </select>
+      <label style="font-size:11px;color:var(--muted)">Foto produk Shopee (URL foto atau unggah gambar)</label>
+      <input type="url" value="${escHtml(l.image_url||'')}" placeholder="https://.../foto-produk.jpg" oninput="links[${i}].image_url=this.value">
+      <input type="file" accept="image/*" onchange="uploadProductPhoto(this,${i})" style="font-size:11px;margin-bottom:9px;max-width:100%">
       <div class="icon-panel" data-for="${i}" id="ip${i}">
         <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600">PILIH LOGO BRAND</div>
         <div class="brand-grid">${BRANDS.map(b=>`
@@ -281,7 +294,16 @@ function renderLinks() {
     </div>`).join('');
 }
 
-function escHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/>/g,'&gt;')}
+function guessType(l){const u=(l.url||'').toLowerCase();return l.icon==='whatsapp'||u.includes('wa.me/')?'wa':l.icon==='shopee'||u.includes('shopee.')?'shopee':u.includes('azmayra-lp.vercel.app')?'lp':'other'}
+function cleanUrl(s){try{let raw=String(s||'').trim();if(!/^[a-z][a-z\d+.-]*:/i.test(raw))raw='https://'+raw;const u=new URL(raw);return ['http:','https:'].includes(u.protocol)?u.href:null}catch{return null}}
+async function uploadProductPhoto(inp,i){
+  const f=inp.files?.[0];if(!f)return;
+  if(!f.type.startsWith('image/')){toast('Pilih file gambar',false);return}
+  try{const bitmap=await createImageBitmap(f),canvas=document.createElement('canvas'),scale=Math.min(1,650/Math.max(bitmap.width,bitmap.height));canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+    links[i].image_url=canvas.toDataURL('image/jpeg',0.7);toast('Foto siap. Klik Simpan Link Ini.');}
+  catch(e){toast('Foto tidak bisa dibaca',false)}
+}
 
 function togglePanel(el) {
   event.stopPropagation();
@@ -309,18 +331,25 @@ function saveLinkByEl(el) {
 async function saveLink(i) {
   const l=links[i];
   try {
+    const url=cleanUrl(l.url);
+    if(!url)throw new Error('URL harus berupa alamat http/https yang valid');
+    if(!l.label?.trim())throw new Error('Nama link wajib diisi');
+    const image_url=l.image_url?.trim()||null;
+    if(image_url&&!image_url.startsWith('data:image/')&&!cleanUrl(image_url))throw new Error('URL foto tidak valid');
+    const values={icon:l.icon,label:l.label.trim(),url,link_type:l.link_type||guessType(l),image_url};
     if(l.id) {
-      await db(`az_links?id=eq.${l.id}`,{method:'PATCH',prefer:'return=minimal',body:JSON.stringify({icon:l.icon,label:l.label,url:l.url})});
+      await db(`az_links?id=eq.${l.id}`,{method:'PATCH',prefer:'return=minimal',body:JSON.stringify(values)});
     } else {
-      const [nl]=await db('az_links',{method:'POST',body:JSON.stringify({icon:l.icon,label:l.label,url:l.url,sort_order:i+1})});
+      const [nl]=await db('az_links',{method:'POST',body:JSON.stringify({...values,sort_order:i+1,active:true})});
       links[i]=nl;
     }
+    links[i].url=url;renderLinks();
     toast('✅ Link disimpan!');
   } catch(e){ toast('Gagal: '+e.message,false); }
 }
 
 async function addLink() {
-  links.push({id:null,icon:'🔗',label:'Link Baru',url:'https://'});
+  links.push({id:null,icon:'🔗',label:'',url:'',link_type:'other',image_url:null});
   renderLinks();
   // scroll ke bawah
   setTimeout(()=>{ const lc=document.getElementById('lc'+(links.length-1)); if(lc) lc.scrollIntoView({behavior:'smooth',block:'center'}); },100);
@@ -429,7 +458,7 @@ async function init() {
     buildEmoji(); buildWp(); renderLinks();
   } catch(e){ buildEmoji(); buildWp(); toast('Gagal load: cek SUPABASE_KEY',false); }
 }
-init(); loadAnalytics();
+db('az_profile?select=id&limit=1').then(()=>{document.getElementById('login').style.display='none';init();loadAnalytics()}).catch(()=>{});
 </script>
 </body>
 </html>
