@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "linkbio-azmayra-git-main-azmayra.vercel.app"
+        }
+      ],
+      "destination": "https://linkbio-azmayra-azmayra.vercel.app/:path*",
+      "permanent": true
+    }
+  ]
+}
