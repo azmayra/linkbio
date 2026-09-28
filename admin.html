@@ -41,6 +41,13 @@ input:focus{outline:none;border-color:var(--accent)}
 
 /* Link editor */
 .link-card{background:#fafafa;border:0.5px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
+.link-card.new-link{border:2px solid #1baf7a;background:#f3fbf7}
+.link-status{font-size:12px;line-height:1.4;margin:4px 0 6px;color:#b23434}
+.link-status:empty{display:none}
+.preview-phone{max-width:390px;margin:0 auto;border:7px solid #26302b;border-radius:30px;overflow:hidden;background:#fff;box-shadow:0 8px 30px #17302322}
+.preview-bar{padding:12px 14px;background:#fff;border-bottom:1px solid #e8e8e8;font-size:12px;color:#38453c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.preview-phone iframe{display:block;width:100%;height:560px;border:0;background:#425941}
+@media(max-width:760px){.main{display:block;padding:14px}.preview-phone iframe{height:500px}}
 .link-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .icon-btn{width:44px;height:44px;border-radius:8px;border:0.5px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;position:relative}
 .icon-btn img{width:28px;height:28px;object-fit:contain}
@@ -121,9 +128,9 @@ input:focus{outline:none;border-color:var(--accent)}
 
   <div class="card">
     <div class="stitle">Daftar Link</div>
-    <p style="font-size:12px;color:var(--muted);margin:0 0 12px">Pilih tujuan, isi URL lengkap, lalu simpan setiap link. Foto produk tampil pada kartu Shopee.</p>
+    <p style="font-size:12px;color:var(--muted);margin:0 0 12px">Klik Tambah Link Baru: kartu baru muncul paling atas. Isi Nama link dan URL, centang Tampilkan, lalu klik Simpan Link Ini. Foto produk hanya diperlukan untuk Shopee.</p>
+    <button class="btn btn-blue" onclick="addLink()" style="margin:0 0 12px">+ Tambah Link Baru</button>
     <div id="link-editor"></div>
-    <button class="btn btn-blue" onclick="addLink()">+ Tambah Link Baru</button>
     <button class="btn btn-blue" onclick="addShopeeProduct()">+ Tambah Produk Shopee</button>
     <p id="shopee-capacity" style="font-size:11px;color:var(--muted);margin-top:9px"></p>
   </div>
@@ -131,6 +138,12 @@ input:focus{outline:none;border-color:var(--accent)}
 
 <!-- KANAN -->
 <div>
+  <div class="card">
+    <div class="stitle">Pratinjau Link Bio di ponsel Instagram</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Tampilan situs untuk pengunjung yang membuka link dari bio Instagram. Perubahan muncul setelah disimpan.</p>
+    <div class="preview-phone"><div class="preview-bar">🔒 linkbio-azmayra.vercel.app</div><iframe id="bio-preview" title="Pratinjau Link Bio" loading="lazy" src="/" tabindex="-1"></iframe></div>
+    <a href="/" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-top:12px;color:#286b51">Buka halaman publik ↗</a>
+  </div>
   <div style="display:flex;gap:6px;margin-bottom:14px">
     <button class="pb" onclick="setPeriod(7,this)">7 hari</button>
     <button class="pb active" onclick="setPeriod(30,this)">30 hari</button>
@@ -211,6 +224,7 @@ function toast(msg, ok=true) {
   t.textContent=msg; t.className='toast show '+(ok?'tok':'terr');
   setTimeout(()=>t.className='toast',2800);
 }
+function refreshPreview(){const frame=document.getElementById('bio-preview');if(frame)frame.src='/?preview='+Date.now()}
 
 function imgEl(val, size=28) {
   if(BRAND_MAP[val]) return `<img src="${BRAND_MAP[val]}" style="width:${size}px;height:${size}px;object-fit:contain">`;
@@ -281,7 +295,8 @@ function renderLinks() {
   const shopee=links.filter(l=>(l.link_type||guessType(l))==='shopee');
   document.getElementById('shopee-capacity').textContent=`Slot Shopee: ${shopee.length}/10 • ${shopee.filter(l=>l.active).length} tampil • draf tidak terlihat pengunjung. Isi foto dan URL, lalu aktifkan.`;
   document.getElementById('link-editor').innerHTML = links.map((l,i)=>`
-    <div class="link-card" id="lc${i}">
+    <div class="link-card${l.id?'':' new-link'}" id="lc${i}">
+      ${l.id?'':'<div style="font-size:12px;font-weight:700;color:#267653;margin-bottom:8px">LINK BARU • belum disimpan</div>'}
       <div class="link-top">
         <div class="icon-btn" data-idx="${i}" onclick="togglePanel(this)">${imgEl(l.icon,26)}</div>
         <div class="link-name-url" style="flex:1">
@@ -291,16 +306,18 @@ function renderLinks() {
         <button class="btn btn-red" onclick="delLink(${i},${Number(l.id)||0})">✕</button>
       </div>
       <label style="font-size:11px;color:var(--muted)">Jenis tujuan untuk event Meta</label>
-      <select onchange="links[${i}].link_type=this.value">
+      <select onchange="setLinkType(this,${i})">
         ${[['other','Link lain'],['wa','WhatsApp (Contact)'],['lp','Landing page (LinkBioClick)'],['shopee','Shopee (LinkBioClick)']].map(([v,t])=>`<option value="${v}"${(l.link_type||guessType(l))===v?' selected':''}>${t}</option>`).join('')}
       </select>
       <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:0 0 10px">
         <input type="checkbox" ${l.active?'checked':''} onchange="links[${i}].active=this.checked">
         Tampilkan ke pengunjung (nonaktif = draf)
       </label>
-      <label style="font-size:11px;color:var(--muted)">Foto produk Shopee (URL foto atau unggah gambar)</label>
-      <input type="url" value="${escHtml(l.image_url||'')}" placeholder="https://.../foto-produk.jpg" oninput="links[${i}].image_url=this.value">
-      <input type="file" accept="image/*" onchange="uploadProductPhoto(this,${i})" style="font-size:11px;margin-bottom:9px;max-width:100%">
+      <div class="shopee-photo" style="display:${(l.link_type||guessType(l))==='shopee'?'block':'none'}">
+        <label style="font-size:11px;color:var(--muted)">Foto produk Shopee (URL foto atau unggah gambar)</label>
+        <input type="url" value="${escHtml(l.image_url||'')}" placeholder="https://.../foto-produk.jpg" oninput="links[${i}].image_url=this.value">
+        <input type="file" accept="image/*" onchange="uploadProductPhoto(this,${i})" style="font-size:11px;margin-bottom:9px;max-width:100%">
+      </div>
       <div class="icon-panel" data-for="${i}" id="ip${i}">
         <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600">PILIH LOGO BRAND</div>
         <div class="brand-grid">${BRANDS.map(b=>`
@@ -312,12 +329,14 @@ function renderLinks() {
         <div style="font-size:11px;color:var(--muted);margin:8px 0 4px;font-weight:600">ATAU EMOJI</div>
         <div class="emoji-mini">${MINI_EMOJIS.map(e=>`<span class="em" data-idx="${i}" data-val="${e}" onclick="setIconByEl(this)">${e}</span>`).join('')}</div>
       </div>
+      <div class="link-status" role="alert"></div>
       <button class="btn btn-green" data-idx="${i}" onclick="saveLinkByEl(this)" style="padding:8px">💾 Simpan Link Ini</button>
     </div>`).join('');
 }
 
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/>/g,'&gt;')}
 function guessType(l){const u=(l.url||'').toLowerCase();return l.icon==='whatsapp'||u.includes('wa.me/')?'wa':l.icon==='shopee'||u.includes('shopee.')?'shopee':u.includes('azmayra-lp.vercel.app')?'lp':'other'}
+function setLinkType(el,i){links[i].link_type=el.value;el.closest('.link-card').querySelector('.shopee-photo').style.display=el.value==='shopee'?'block':'none'}
 function cleanUrl(s){try{let raw=String(s||'').trim();if(!/^[a-z][a-z\d+.-]*:/i.test(raw))raw='https://'+raw;const u=new URL(raw);return ['http:','https:'].includes(u.protocol)?u.href:null}catch{return null}}
 async function uploadProductPhoto(inp,i){
   const f=inp.files?.[0];if(!f)return;
@@ -347,38 +366,46 @@ function setIconByEl(el) {
 
 function saveLinkByEl(el) {
   const i=parseInt(el.dataset.idx);
-  saveLink(i);
+  saveLink(i,el);
 }
 
-async function saveLink(i) {
+async function saveLink(i,button) {
   const l=links[i];
+  const card=button?.closest('.link-card');
+  const status=card?.querySelector('.link-status');
+  if(status)status.textContent='';
   try {
     const url=cleanUrl(l.url);
+    if(!l.label?.trim())throw new Error('Isi Nama link pada kartu ini');
     if(l.active&&!url)throw new Error('Isi URL http/https sebelum menampilkan link');
     if(l.url?.trim()&&!url)throw new Error('URL harus berupa alamat http/https yang valid');
-    if(!l.label?.trim())throw new Error('Nama link wajib diisi');
     const image_url=l.image_url?.trim()||null;
     if(image_url&&!image_url.startsWith('data:image/')&&!cleanUrl(image_url))throw new Error('URL foto tidak valid');
     const type=l.link_type||guessType(l);
     if(type==='shopee'&&links.filter(x=>(x.link_type||guessType(x))==='shopee').length>10)throw new Error('Maksimal 10 kartu Shopee');
     if(type==='shopee'&&l.active&&!image_url)throw new Error('Isi satu foto sebelum menampilkan produk Shopee');
     const values={icon:l.icon,label:l.label.trim(),url:url||'',link_type:type,image_url,active:!!l.active};
+    if(button){button.disabled=true;button.textContent='Menyimpan…'}
     if(l.id) {
       await db(`az_links?id=eq.${l.id}`,{method:'PATCH',prefer:'return=minimal',body:JSON.stringify(values)});
     } else {
-      const [nl]=await db('az_links',{method:'POST',body:JSON.stringify({...values,sort_order:i+1})});
+      const firstOrder=Math.min(1,...links.filter(x=>x.id).map(x=>Number(x.sort_order)||1));
+      const [nl]=await db('az_links',{method:'POST',body:JSON.stringify({...values,sort_order:firstOrder-1})});
       links[i]=nl;
     }
     links[i].url=url||'';renderLinks();
+    refreshPreview();
     toast('✅ Link disimpan!');
-  } catch(e){ toast('Gagal: '+e.message,false); }
+  } catch(e){if(status)status.textContent=e.message;toast('Gagal: '+e.message,false)}
+  finally{if(button?.isConnected){button.disabled=false;button.textContent='💾 Simpan Link Ini'}}
 }
 
-async function addLink() {
-  links.push({id:null,icon:'🔗',label:'',url:'',link_type:'other',image_url:null,active:false});
+function addLink() {
+  const existing=links.findIndex(l=>!l.id&&l.link_type!=='shopee');
+  if(existing>=0){const card=document.getElementById('lc'+existing);card?.scrollIntoView({behavior:'smooth',block:'center'});card?.querySelector('input[type=text]')?.focus();toast('Isi dan simpan kartu Link Baru terlebih dahulu.');return}
+  links.unshift({id:null,icon:'🔗',label:'',url:'',link_type:'other',image_url:null,active:true});
   renderLinks();
-  // scroll ke bawah
-  setTimeout(()=>{ const lc=document.getElementById('lc'+(links.length-1)); if(lc) lc.scrollIntoView({behavior:'smooth',block:'center'}); },100);
+  setTimeout(()=>{const card=document.getElementById('lc0');card?.scrollIntoView({behavior:'smooth',block:'center'});card?.querySelector('input[type=text]')?.focus()},50);
 }
 function addShopeeProduct(){
   const count=links.filter(l=>(l.link_type||guessType(l))==='shopee').length;
@@ -392,7 +419,7 @@ async function delLink(i,id) {
   if(!confirm('Hapus link ini?')) return;
   try {
     if(id) await db(`az_links?id=eq.${id}`,{method:'DELETE',prefer:'return=minimal'});
-    links.splice(i,1); renderLinks(); toast('Link dihapus'); loadAnalytics();
+    links.splice(i,1); renderLinks(); refreshPreview(); toast('Link dihapus'); loadAnalytics();
   } catch(e){ toast('Gagal hapus',false); }
 }
 
@@ -409,6 +436,7 @@ async function saveProfile() {
     })});
     profile.avatar_url=avatarB64===null?(profile.avatar_url||null):(avatarB64||null);
     avatarB64=null;
+    refreshPreview();
     toast('✅ Logo dan background tersimpan!');
   } catch(e){ toast('Gagal simpan: '+e.message,false); }
 }
