@@ -336,8 +336,9 @@ function renderLinks() {
         Tampilkan ke pengunjung (nonaktif = draf)
       </label>
       <div class="shopee-photo" style="display:${(l.link_type||guessType(l))==='shopee'?'block':'none'}">
-        <label style="font-size:11px;color:var(--muted)">Foto produk Shopee (URL foto atau unggah gambar)</label>
-        <input type="url" value="${escHtml(l.image_url||'')}" placeholder="https://.../foto-produk.jpg" oninput="updateLinkField(this,${i},'image_url')">
+        <label style="font-size:11px;color:var(--muted)">Foto produk (unggah gambar atau tempel URL file .jpg/.png, bukan URL halaman Shopee)</label>
+        <img id="photo-prev${i}" src="${escHtml(l.image_url||'')}" alt="Pratinjau foto produk" style="display:${l.image_url?'block':'none'};width:72px;height:72px;object-fit:cover;border-radius:8px;margin:6px 0;background:#eee" onerror="this.style.display='none'">
+        <input type="url" value="${l.image_url?.startsWith('data:image/')?'':escHtml(l.image_url||'')}" placeholder="https://.../foto-produk.jpg" oninput="updateLinkField(this,${i},'image_url')">
         <input type="file" accept="image/*" onchange="uploadProductPhoto(this,${i})" style="font-size:11px;margin-bottom:9px;max-width:100%">
       </div>
       <div class="icon-panel" data-for="${i}" id="ip${i}">
@@ -437,12 +438,15 @@ function updateLinkField(el,i,field){
   if(status)status.textContent='';
 }
 function setLinkType(el,i){links[i].link_type=el.value;el.closest('.link-card').querySelector('.shopee-photo').style.display=el.value==='shopee'?'block':'none'}
+function isShopeePageUrl(s){try{const u=new URL(s);return /(^|\.)shopee\.co\.id$/.test(u.hostname)||/(^|\.)s\.shopee\.co\.id$/.test(u.hostname)}catch{return false}}
 function cleanUrl(s){try{let raw=String(s||'').trim();if(!/^[a-z][a-z\d+.-]*:/i.test(raw))raw='https://'+raw;const u=new URL(raw);return ['http:','https:'].includes(u.protocol)?u.href:null}catch{return null}}
 async function uploadProductPhoto(inp,i){
   const f=inp.files?.[0];if(!f)return;
   if(!f.type.startsWith('image/')){toast('Pilih file gambar',false);return}
   try{const bitmap=await createImageBitmap(f),canvas=document.createElement('canvas'),scale=Math.min(1,650/Math.max(bitmap.width,bitmap.height));canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
-    links[i].image_url=canvas.toDataURL('image/jpeg',0.7);toast('Foto siap. Klik Simpan Link Ini.');}
+    links[i].image_url=canvas.toDataURL('image/jpeg',0.7);
+    const preview=document.getElementById('photo-prev'+i);if(preview){preview.src=links[i].image_url;preview.style.display='block'}
+    toast('Foto siap. Klik Simpan Link Ini.');}
   catch(e){toast('Foto tidak bisa dibaca',false)}
 }
 
@@ -491,6 +495,7 @@ async function saveLink(i,button) {
     if(l.url?.trim()&&!url)throw new Error('URL harus berupa alamat http/https yang valid');
     const image_url=l.image_url?.trim()||null;
     if(image_url&&!image_url.startsWith('data:image/')&&!cleanUrl(image_url))throw new Error('URL foto tidak valid');
+    if(image_url&&isShopeePageUrl(image_url))throw new Error('URL halaman Shopee bukan foto. Unggah file foto produk atau isi URL gambar langsung.');
     const type=l.link_type||guessType(l);
     if(type==='shopee'&&links.filter(x=>(x.link_type||guessType(x))==='shopee').length>10)throw new Error('Maksimal 10 kartu Shopee');
     if(type==='shopee'&&l.active&&!image_url)throw new Error('Isi satu foto sebelum menampilkan produk Shopee');
