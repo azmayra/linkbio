@@ -1,9 +1,9 @@
 # AZMAYRA Link Bio
 
-Halaman publik: `https://linkbio-azmayra.vercel.app/`  
-Editor: `https://linkbio-azmayra.vercel.app/admin.html`
+Halaman publik: `https://linkbio-azmayra-azmayra.vercel.app/`  
+Editor: `https://linkbio-azmayra-azmayra.vercel.app/admin.html`
 
-## Yang dapat diedit
+Alias `https://linkbio-azmayra-git-main-azmayra.vercel.app/` dialihkan ke alamat publik utama melalui `vercel.json`.\n\n## Yang dapat diedit
 
 Masuk ke editor, lalu untuk setiap link isi nama, URL, dan jenis tujuan. Pilih WhatsApp, landing page, Shopee, atau link lain. Untuk kartu Shopee, isi URL foto produk atau unggah gambar; foto yang diunggah diperkecil sebelum disimpan. Klik **Simpan Link Ini** pada setiap kartu. Hanya URL `https://` atau `http://` yang diterima. URL tanpa awalan akan diberi `https://`.
 
