@@ -12,13 +12,30 @@
 const SUPABASE_URL='https://lqhfdkggkmlorufswmhv.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxaGZka2dna21sb3J1ZnN3bWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzNzkzNDQsImV4cCI6MjEwMDk1NTM0NH0.mQ3Npu3aD6CPdJixrKTxYrchDOuWjsx6eWAdumVNgvo';
 function validUrl(raw){try{let s=String(raw||'').trim();if(!/^[a-z][a-z\d+.-]*:/i.test(s))s='https://'+s;const u=new URL(s);return ['http:','https:'].includes(u.protocol)?u.href:null}catch{return null}}
+const seenClicks=new Set();
+function visitorId(){
+  try{
+    let id=localStorage.getItem('azbio_visitor_v1');
+    if(!/^[0-9a-f-]{36}$/i.test(id||'')){id=crypto.randomUUID();localStorage.setItem('azbio_visitor_v1',id)}
+    return id;
+  }catch{
+    let id=document.cookie.match(/(?:^|; )azbio_vid=([0-9a-f-]{36})/i)?.[1];
+    if(!id){id=crypto.randomUUID();document.cookie=`azbio_vid=${id}; Max-Age=31536000; Path=/; Secure; SameSite=Lax`}
+    return id;
+  }
+}
 function trackProduct(l,url){
+  const key=`azbio_seen_v1:shopee:${l.id}:${url}`;
+  if(seenClicks.has(key))return;
+  try{if(localStorage.getItem(key))return;localStorage.setItem(key,'1')}catch{}
+  seenClicks.add(key);
   const event_id=crypto.randomUUID?.()||String(Date.now())+Math.random(),event_name='LinkBioClick';
   const data={destination:'shopee',link_id:l.id,link_label:l.label};
   if(typeof fbq==='function')fbq('trackCustom',event_name,data,{eventID:event_id});
   const cookie=name=>document.cookie.match(new RegExp('(?:^|; )'+name+'=([^;]*)'))?.[1]||null;
-  fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event_id,event_name,destination:'shopee',link_id:l.id,link_label:l.label,fbp:cookie('_fbp'),fbc:cookie('_fbc')}),keepalive:true}).catch(()=>{});
-  fetch(SUPABASE_URL+'/rest/v1/az_clicks',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({link_id:l.id,link_label:l.label,link_url:url,referrer:document.referrer||null}),keepalive:true}).catch(()=>{});
+  fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event_id,event_name,destination:'shopee',link_id:l.id,link_label:l.label,link_url:url,visitor_id:visitorId(),referrer:document.referrer||null,fbp:cookie('_fbp'),fbc:cookie('_fbc')}),keepalive:true})
+    .then(r=>{if(!r.ok)throw Error('Klik belum tersimpan')})
+    .catch(()=>{seenClicks.delete(key);try{localStorage.removeItem(key)}catch{}});
 }
 async function init(){const box=document.getElementById('products');try{
   const headers={apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY};

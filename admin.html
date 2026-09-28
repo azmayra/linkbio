@@ -182,7 +182,8 @@ input:focus{outline:none;border-color:var(--accent)}
     <div class="cw"><canvas id="trendChart"></canvas></div>
   </div>
   <div class="card">
-    <div class="stitle">Klik per Link</div>
+    <div class="stitle">Sumber link & jumlah klik</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Setiap link aktif otomatis muncul, termasuk produk Shopee yang belum diklik.</p>
     <div id="link-stats"><div class="loading">Memuat...</div></div>
   </div>
   <div class="card">
@@ -658,20 +659,34 @@ async function loadAnalytics() {
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#aaa',font:{size:10},maxTicksLimit:10}},y:{grid:{color:'#eee'},ticks:{color:'#aaa',font:{size:10}},border:{display:false}}}}
     });
 
-    const byLink={};
-    clicks.forEach(c=>{byLink[c.link_label]=(byLink[c.link_label]||0)+1;});
-    const sorted=Object.entries(byLink).sort((a,b)=>b[1]-a[1]);
-    const iconMap=Object.fromEntries(links.map(l=>[l.label,l.icon]));
+    const sources=[],sourceLookup=new Map();
+    let catalogAdded=false;
+    for(const l of links){
+      if(!l.id||!l.active||!cleanUrl(l.url))continue;
+      const type=l.link_type||guessType(l),url=cleanUrl(l.url);
+      if(type==='shopee'&&!catalogAdded){
+        sources.push({key:'shopee_catalog',label:'Link Shopee',icon:'shopee',count:0});catalogAdded=true;
+      }
+      const source={key:`${l.id}|${url}`,label:l.label,icon:l.icon,count:0};
+      sources.push(source);sourceLookup.set(source.key,source);
+    }
+    const catalog=sources.find(s=>s.key==='shopee_catalog');
+    clicks.forEach(c=>{
+      if(c.link_label==='Link Shopee'&&/\/shopee\.html$/.test(cleanUrl(c.link_url)||'')){if(catalog)catalog.count++;return}
+      const source=sourceLookup.get(`${c.link_id}|${cleanUrl(c.link_url)}`);
+      if(source)source.count++;
+    });
+    const sorted=[...sources].sort((a,b)=>b.count-a.count);
     document.getElementById('link-stats').innerHTML=sorted.length
-      ? sorted.map(([lbl,cnt])=>`
+      ? sorted.map(({label,icon,count})=>`
           <div class="lsr">
-            <div class="lsic">${imgEl(iconMap[lbl]||'🔗',22)}</div>
-            <div style="flex:1;font-size:13px;font-weight:500">${escHtml(lbl)}</div>
-            <div style="width:80px;height:5px;background:#eee;border-radius:3px;overflow:hidden"><div style="height:100%;border-radius:3px;background:var(--accent);width:${Math.round(cnt/sorted[0][1]*100)}%"></div></div>
-            <div style="font-size:13px;font-weight:600;min-width:28px;text-align:right">${cnt}</div>
-            <div style="font-size:11px;color:var(--muted);min-width:30px;text-align:right">${Math.round(cnt/total*100)}%</div>
+            <div class="lsic">${imgEl(icon||'🔗',22)}</div>
+            <div style="flex:1;font-size:13px;font-weight:500">${escHtml(label)}</div>
+            <div style="width:80px;height:5px;background:#eee;border-radius:3px;overflow:hidden"><div style="height:100%;border-radius:3px;background:var(--accent);width:${sorted[0].count?Math.round(count/sorted[0].count*100):0}%"></div></div>
+            <div style="font-size:13px;font-weight:600;min-width:28px;text-align:right">${count}</div>
+            <div style="font-size:11px;color:var(--muted);min-width:30px;text-align:right">${total?Math.round(count/total*100):0}%</div>
           </div>`).join('')
-      : '<div class="loading">Belum ada klik tercatat</div>';
+      : '<div class="loading">Belum ada link aktif.</div>';
 
     const productCounts=new Map();
     clicks.forEach(c=>{
