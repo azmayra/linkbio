@@ -186,6 +186,11 @@ input:focus{outline:none;border-color:var(--accent)}
     <div id="link-stats"><div class="loading">Memuat...</div></div>
   </div>
   <div class="card">
+    <div class="stitle">Link produk Shopee & jumlah klik</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Klik produk dihitung terpisah dari tombol Link Shopee. Periode mengikuti pilihan 7, 30, atau 90 hari di atas.</p>
+    <div id="shopee-stats"><div class="loading">Memuat...</div></div>
+  </div>
+  <div class="card">
     <div class="stitle">Jam Tersibuk</div>
     <div class="cw" style="height:110px"><canvas id="hourChart"></canvas></div>
   </div>
@@ -436,7 +441,7 @@ async function persistShopeeOrder(ids){
       await db(`az_links?id=eq.${ordered[i].id}`,{method:'PATCH',prefer:'return=minimal',body:JSON.stringify({sort_order:i+1})});
       ordered[i].sort_order=i+1;
     }
-    links=[...ordered,...links.filter(l=>!l.id)];renderLinks();refreshPreview();
+    links=[...ordered,...links.filter(l=>!l.id)];renderLinks();refreshPreview();loadAnalytics();
     message.textContent='✓ Urutan foto tersimpan. Halaman Shopee mengikuti urutan ini.';
   }catch(e){
     message.textContent='Gagal menyimpan urutan foto: '+e.message;
@@ -572,7 +577,7 @@ async function saveLink(i,button) {
       const [nl]=await db('az_links',{method:'POST',body:JSON.stringify({...values,sort_order:lastOrder+1})});
       links[i]=nl;
     }
-    links[i].url=url||'';renderLinks();
+    links[i].url=url||'';renderLinks();loadAnalytics();
     refreshPreview();
     toast('✅ Link disimpan!');
   } catch(e){if(status)status.textContent=e.message;toast('Gagal: '+e.message,false)}
@@ -630,7 +635,12 @@ function setPeriod(p,btn) {
 async function loadAnalytics() {
   const since=new Date(); since.setDate(since.getDate()-period);
   try {
-    const clicks=await db(`az_clicks?clicked_at=gte.${since.toISOString()}&select=link_label,clicked_at&order=clicked_at.asc`);
+    const clicks=[];
+    for(let offset=0;;offset+=1000){
+      const batch=await db(`az_clicks?clicked_at=gte.${since.toISOString()}&select=id,link_id,link_label,link_url,clicked_at&order=clicked_at.asc,id.asc&limit=1000&offset=${offset}`);
+      clicks.push(...batch);
+      if(batch.length<1000)break;
+    }
     const total=clicks.length;
     document.getElementById('s-total').textContent=total.toLocaleString('id');
     document.getElementById('s-avg').textContent=Math.round(total/period);
@@ -656,12 +666,31 @@ async function loadAnalytics() {
       ? sorted.map(([lbl,cnt])=>`
           <div class="lsr">
             <div class="lsic">${imgEl(iconMap[lbl]||'🔗',22)}</div>
-            <div style="flex:1;font-size:13px;font-weight:500">${lbl}</div>
+            <div style="flex:1;font-size:13px;font-weight:500">${escHtml(lbl)}</div>
             <div style="width:80px;height:5px;background:#eee;border-radius:3px;overflow:hidden"><div style="height:100%;border-radius:3px;background:var(--accent);width:${Math.round(cnt/sorted[0][1]*100)}%"></div></div>
             <div style="font-size:13px;font-weight:600;min-width:28px;text-align:right">${cnt}</div>
             <div style="font-size:11px;color:var(--muted);min-width:30px;text-align:right">${Math.round(cnt/total*100)}%</div>
           </div>`).join('')
       : '<div class="loading">Belum ada klik tercatat</div>';
+
+    const productCounts=new Map();
+    clicks.forEach(c=>{
+      if(c.link_id==null||!c.link_url)return;
+      const key=`${c.link_id}|${cleanUrl(c.link_url)}`;
+      productCounts.set(key,(productCounts.get(key)||0)+1);
+    });
+    const products=links.filter(l=>l.id&&l.active&&(l.link_type||guessType(l))==='shopee'&&cleanUrl(l.url));
+    document.getElementById('shopee-stats').innerHTML=products.length
+      ? products.map(l=>{
+          const url=cleanUrl(l.url),count=productCounts.get(`${l.id}|${url}`)||0;
+          return `<div class="lsr" style="align-items:flex-start">
+            <img class="order-photo" src="${escHtml(l.image_url||'/assets/azmayra-mark.png')}" alt="" onerror="this.onerror=null;this.src='/assets/azmayra-mark.png'">
+            <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">${escHtml(l.label)}</div>
+              <a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer" style="font-size:11px;color:#286b51;word-break:break-all">${escHtml(url)}</a></div>
+            <div style="font-size:14px;font-weight:700;white-space:nowrap">${count} klik</div>
+          </div>`;
+        }).join('')
+      : '<div class="loading">Belum ada produk Shopee aktif.</div>';
 
     const byHour=Array(24).fill(0);
     clicks.forEach(c=>{byHour[new Date(c.clicked_at).getHours()]++;});
@@ -701,7 +730,7 @@ async function init() {
     buildEmoji(); buildWp(); renderLinks();
   } catch(e){ buildEmoji(); buildWp(); toast('Gagal load: cek SUPABASE_KEY',false); }
 }
-db('az_profile?select=id&limit=1').then(()=>{document.getElementById('login').style.display='none';init();loadAnalytics()}).catch(()=>{});
+db('az_profile?select=id&limit=1').then(async()=>{document.getElementById('login').style.display='none';await init();await loadAnalytics()}).catch(()=>{});
 </script>
 </body>
 </html>
