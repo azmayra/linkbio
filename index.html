@@ -111,7 +111,7 @@ async function init(){
         const img=document.createElement('img');img.src=BRAND_MAP.shopee;img.alt='';icon.append(img);catalog.append(icon);
         const label=document.createElement('span');label.style.flex='1';label.textContent='Link Shopee';catalog.append(label);
         const arrow=document.createElement('span');arrow.textContent='›';catalog.append(arrow);
-        catalog.addEventListener('click',()=>track(l,location.origin+'/shopee.html','shopee_catalog'));
+        catalog.addEventListener('click',()=>track({...l,label:'Link Shopee'},location.origin+'/shopee.html','shopee_catalog'));
         c.append(catalog);return;
       }
       const a=document.createElement('a');
