@@ -128,10 +128,11 @@ input:focus{outline:none;border-color:var(--accent)}
 
   <div class="card">
     <div class="stitle">Daftar Link</div>
-    <p style="font-size:12px;color:var(--muted);margin:0 0 12px">Klik Tambah Link Baru: kartu baru muncul paling atas. Isi Nama link dan URL, centang Tampilkan, lalu klik Simpan Link Ini. Foto produk hanya diperlukan untuk Shopee.</p>
-    <button class="btn btn-blue" onclick="addLink()" style="margin:0 0 12px">+ Tambah Link Baru</button>
+    <p style="font-size:12px;color:var(--muted);margin:0 0 12px">Untuk menambah tombol di halaman utama, klik Tambah Link di Link Bio. Isi nama dan URL, lalu simpan. Sepuluh slot Shopee hanya membatasi foto produk.</p>
+    <button class="btn btn-blue" onclick="addLink()" style="margin:0 0 12px">+ Tambah Link di Link Bio</button>
     <div id="link-editor"></div>
-    <button class="btn btn-blue" onclick="addShopeeProduct()">+ Tambah Produk Shopee</button>
+    <button class="btn btn-green" onclick="addLink()" style="margin:10px 0">+ Tambah Link di Link Bio (tampil setelah Shopee)</button>
+    <button class="btn btn-blue" id="add-shopee-btn" onclick="addShopeeProduct()">+ Tambah Produk Shopee</button>
     <p id="shopee-capacity" style="font-size:11px;color:var(--muted);margin-top:9px"></p>
   </div>
 </div>
@@ -293,7 +294,13 @@ function onWpFile(inp) {
 // ---- LINK EDITOR ----
 function renderLinks() {
   const shopee=links.filter(l=>(l.link_type||guessType(l))==='shopee');
-  document.getElementById('shopee-capacity').textContent=`Slot Shopee: ${shopee.length}/10 • ${shopee.filter(l=>l.active).length} tampil • draf tidak terlihat pengunjung. Isi foto dan URL, lalu aktifkan.`;
+  document.getElementById('shopee-capacity').textContent=shopee.length>=10
+    ?`10 slot foto Shopee sudah tersedia (${shopee.filter(l=>l.active).length} tampil). Untuk produk baru, edit salah satu draf. Tombol Link Bio biasa tetap bisa ditambah di atas.`
+    :`Slot Shopee: ${shopee.length}/10 • ${shopee.filter(l=>l.active).length} tampil • draf tidak terlihat pengunjung.`;
+  const shopeeButton=document.getElementById('add-shopee-btn');
+  shopeeButton.disabled=shopee.length>=10;
+  shopeeButton.textContent=shopee.length>=10?'10 slot Shopee penuh — edit draf di atas':'+ Tambah Produk Shopee';
+  shopeeButton.style.opacity=shopee.length>=10?'.6':'1';
   document.getElementById('link-editor').innerHTML = links.map((l,i)=>`
     <div class="link-card${l.id?'':' new-link'}" id="lc${i}">
       ${l.id?'':'<div style="font-size:12px;font-weight:700;color:#267653;margin-bottom:8px">LINK BARU • belum disimpan</div>'}
@@ -389,8 +396,8 @@ async function saveLink(i,button) {
     if(l.id) {
       await db(`az_links?id=eq.${l.id}`,{method:'PATCH',prefer:'return=minimal',body:JSON.stringify(values)});
     } else {
-      const firstOrder=Math.min(1,...links.filter(x=>x.id).map(x=>Number(x.sort_order)||1));
-      const [nl]=await db('az_links',{method:'POST',body:JSON.stringify({...values,sort_order:firstOrder-1})});
+      const lastOrder=Math.max(0,...links.filter(x=>x.id).map(x=>Number(x.sort_order)||0));
+      const [nl]=await db('az_links',{method:'POST',body:JSON.stringify({...values,sort_order:lastOrder+1})});
       links[i]=nl;
     }
     links[i].url=url||'';renderLinks();
@@ -403,9 +410,9 @@ async function saveLink(i,button) {
 function addLink() {
   const existing=links.findIndex(l=>!l.id&&l.link_type!=='shopee');
   if(existing>=0){const card=document.getElementById('lc'+existing);card?.scrollIntoView({behavior:'smooth',block:'center'});card?.querySelector('input[type=text]')?.focus();toast('Isi dan simpan kartu Link Baru terlebih dahulu.');return}
-  links.unshift({id:null,icon:'🔗',label:'',url:'',link_type:'other',image_url:null,active:true});
+  links.push({id:null,icon:'🔗',label:'',url:'',link_type:'other',image_url:null,active:true});
   renderLinks();
-  setTimeout(()=>{const card=document.getElementById('lc0');card?.scrollIntoView({behavior:'smooth',block:'center'});card?.querySelector('input[type=text]')?.focus()},50);
+  setTimeout(()=>{const card=document.getElementById('lc'+(links.length-1));card?.scrollIntoView({behavior:'smooth',block:'center'});card?.querySelector('input[type=text]')?.focus()},50);
 }
 function addShopeeProduct(){
   const count=links.filter(l=>(l.link_type||guessType(l))==='shopee').length;
