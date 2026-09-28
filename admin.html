@@ -124,6 +124,8 @@ input:focus{outline:none;border-color:var(--accent)}
     <p style="font-size:12px;color:var(--muted);margin:0 0 12px">Pilih tujuan, isi URL lengkap, lalu simpan setiap link. Foto produk tampil pada kartu Shopee.</p>
     <div id="link-editor"></div>
     <button class="btn btn-blue" onclick="addLink()">+ Tambah Link Baru</button>
+    <button class="btn btn-blue" onclick="addShopeeProduct()">+ Tambah Produk Shopee</button>
+    <p style="font-size:11px;color:var(--muted);margin-top:9px">Setiap link dengan jenis Shopee akan tampil sebagai satu foto di halaman Link Shopee.</p>
   </div>
 </div>
 
@@ -367,6 +369,11 @@ async function addLink() {
   renderLinks();
   // scroll ke bawah
   setTimeout(()=>{ const lc=document.getElementById('lc'+(links.length-1)); if(lc) lc.scrollIntoView({behavior:'smooth',block:'center'}); },100);
+}
+function addShopeeProduct(){
+  links.push({id:null,icon:'shopee',label:'',url:'',link_type:'shopee',image_url:null});
+  renderLinks();
+  setTimeout(()=>document.getElementById('lc'+(links.length-1))?.scrollIntoView({behavior:'smooth',block:'center'}),100);
 }
 
 async function delLink(i,id) {

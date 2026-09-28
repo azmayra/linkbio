@@ -8,11 +8,11 @@ module.exports = async function handler(req,res) {
   const host=req.headers['x-forwarded-host']||req.headers.host;
   if(origin&&host&&new URL(origin).host!==host)return res.status(403).end();
   const body=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
-  if(!['wa','lp','shopee','other'].includes(body.destination)||
+  if(!['wa','lp','shopee','shopee_catalog','other'].includes(body.destination)||
      !/^[a-zA-Z\d-]{10,100}$/.test(body.event_id||'')||
      !Number.isSafeInteger(Number(body.link_id))||
      typeof body.link_label!=='string'||body.link_label.length>120)return res.status(400).end();
-  const eventName=body.destination==='wa'?'Contact':'LinkBioClick';
+  const eventName=body.destination==='wa'?'Contact':body.destination==='shopee_catalog'?'ShopeeCatalogOpen':'LinkBioClick';
   if(body.event_name!==eventName)return res.status(400).end();
   const user_data={client_user_agent:req.headers['user-agent']||''};
   const ip=(req.headers['x-forwarded-for']||'').split(',')[0].trim();

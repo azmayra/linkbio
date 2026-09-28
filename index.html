@@ -72,7 +72,7 @@ function linkType(l){
 }
 function track(link,url,type){
   const event_id=crypto.randomUUID?.()||String(Date.now())+Math.random();
-  const event_name=type==='wa'?'Contact':'LinkBioClick';
+  const event_name=type==='wa'?'Contact':type==='shopee_catalog'?'ShopeeCatalogOpen':'LinkBioClick';
   const data={destination:type,link_id:link.id,link_label:link.label};
   if(typeof fbq==='function'){
     if(type==='wa')fbq('track','Contact',data,{eventID:event_id});
@@ -99,14 +99,24 @@ async function init(){
     document.getElementById('bio').textContent=p.bio||'';
     const c=document.getElementById('links');
     c.replaceChildren();
+    let hasShopee=false;
     lnks.forEach(l=>{
       const url=validUrl(l.url); if(!url)return;
       const type=linkType(l);
+      if(type==='shopee'){
+        if(hasShopee)return;
+        hasShopee=true;
+        const catalog=document.createElement('a');catalog.className='link-btn';catalog.href='/shopee.html';
+        const icon=document.createElement('span');icon.className='link-icon';
+        const img=document.createElement('img');img.src=BRAND_MAP.shopee;img.alt='';icon.append(img);catalog.append(icon);
+        const label=document.createElement('span');label.style.flex='1';label.textContent='Link Shopee';catalog.append(label);
+        const arrow=document.createElement('span');arrow.textContent='›';catalog.append(arrow);
+        catalog.addEventListener('click',()=>track(l,location.origin+'/shopee.html','shopee_catalog'));
+        c.append(catalog);return;
+      }
       const a=document.createElement('a');
-      a.className='link-btn'+(type==='shopee'?' product-card':''); a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
-      const photo=validUrl(l.image_url)||((l.image_url||'').startsWith('data:image/')?l.image_url:null);
-      if(type==='shopee'&&photo){const img=document.createElement('img');img.className='product-photo';img.src=photo;img.alt='Foto '+l.label;a.appendChild(img);}
-      else {const icon=document.createElement('span');icon.className='link-icon';
+      a.className='link-btn'; a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
+      {const icon=document.createElement('span');icon.className='link-icon';
         if(BRAND_MAP[l.icon]){const img=document.createElement('img');img.src=BRAND_MAP[l.icon];img.alt='';icon.appendChild(img);}else icon.textContent=l.icon||'🔗';a.appendChild(icon);}
       const label=document.createElement('span');label.style.flex='1';label.textContent=l.label||'Buka tautan';a.appendChild(label);
       const arrow=document.createElement('span');arrow.textContent='↗';a.appendChild(arrow);
