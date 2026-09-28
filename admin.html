@@ -24,8 +24,8 @@ input:focus{outline:none;border-color:var(--accent)}
 
 /* Avatar */
 .av-wrap{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.av-circle{width:64px;height:64px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden;flex-shrink:0;background:#fafafa}
-.av-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.av-circle{width:74px;height:74px;border-radius:18px;border:2px solid #dce5d8;display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden;flex-shrink:0;background:#f6f7f5}
+.av-circle img{width:100%;height:100%;object-fit:contain}
 
 /* Emoji */
 .emoji-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
@@ -92,13 +92,13 @@ input:focus{outline:none;border-color:var(--accent)}
   <div class="card">
     <div class="stitle">Foto / Emoji Profil</div>
     <div class="av-wrap">
-      <div class="av-circle" id="av-prev">🌸</div>
+      <div class="av-circle" id="av-prev"><img src="/assets/azmayra-mark.png" alt="Logo AZMAYRA"></div>
       <div style="flex:1">
-        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Upload foto profil</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Ganti logo (PNG/JPG)</div>
         <input type="file" id="av-file" accept="image/*" onchange="onAvatarFile(this)" style="font-size:12px;width:100%">
       </div>
     </div>
-    <div class="stitle">Atau pilih emoji</div>
+    <div class="stitle">Atau ganti dengan emoji</div>
     <div class="emoji-row" id="emoji-picker"></div>
     <div class="stitle">Nama & Bio</div>
     <input type="text" id="ed-name" placeholder="Nama">
@@ -108,8 +108,11 @@ input:focus{outline:none;border-color:var(--accent)}
 
   <div class="card">
     <div class="stitle">Wallpaper / Background</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Pilih gradien warna:</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Pilihan warna turunan logo:</div>
     <div class="wp-grid" id="wp-picker"></div>
+    <div style="display:flex;gap:12px;align-items:center;margin:10px 0"><label style="font-size:12px">Warna atas<br><input type="color" id="bg-start" value="#425941" oninput="pickCustomBg()"></label><label style="font-size:12px">Warna bawah<br><input type="color" id="bg-end" value="#718765" oninput="pickCustomBg()"></label></div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:8px">Pratinjau memakai tulisan putih agar kontras bisa dicek sebelum disimpan.</p>
+    <div id="color-preview" style="height:75px;border-radius:10px;background:linear-gradient(145deg,#425941,#718765);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;margin-bottom:12px;text-shadow:0 1px 4px #0005">AZMAYRA · Move Freely</div>
     <div style="font-size:12px;color:var(--muted);margin:8px 0 6px">Upload foto produk sebagai background:</div>
     <input type="file" id="wp-file" accept="image/*" onchange="onWpFile(this)" style="font-size:12px;width:100%;margin-bottom:6px">
     <div class="wp-prev" id="wp-prev"></div>
@@ -176,16 +179,11 @@ const BRAND_MAP = Object.fromEntries(BRANDS.map(b=>[b.key,b.svg]));
 const EMOJIS = ['🌸','✨','🌙','🌊','🌺','🦋','🌈','💫','🍀','🌻','🎀','💖','🔥','🎵','🦄','🌷','🍉','☁️','⭐','🎯'];
 const MINI_EMOJIS = ['🔗','🏠','📸','🎵','🎬','💌','🛍','📝','💻','🎮','📱','🌐','💡','🎨','📞','⭐','🔥','💖'];
 const WALLS = [
-  'linear-gradient(135deg,#f8a5c2,#f7b733)',
-  'linear-gradient(135deg,#a29bfe,#6c5ce7)',
-  'linear-gradient(135deg,#55efc4,#00b894)',
-  'linear-gradient(135deg,#fd79a8,#e84393)',
-  'linear-gradient(135deg,#74b9ff,#0984e3)',
-  'linear-gradient(135deg,#ffeaa7,#fdcb6e)',
-  'linear-gradient(135deg,#fab1a0,#e17055)',
-  'linear-gradient(135deg,#dfe6e9,#636e72)',
-  'linear-gradient(135deg,#b2bec3,#2d3436)',
-  'linear-gradient(135deg,#00cec9,#0984e3)',
+  'linear-gradient(145deg,#425941,#718765)',
+  'linear-gradient(145deg,#384f43,#93a56f)',
+  'linear-gradient(145deg,#54694f,#83997b)',
+  'linear-gradient(145deg,#364e46,#6e8975)',
+  'linear-gradient(145deg,#575f43,#8b9e6c)',
 ];
 
 let profile={}, links=[], selEmoji='🌸', selBg=WALLS[0], avatarB64=null, wpB64=null, period=30;
@@ -230,7 +228,7 @@ function buildEmoji() {
   document.getElementById('emoji-picker').innerHTML=EMOJIS.map(e=>`<span class="ep${e===selEmoji?' sel':''}" onclick="pickEmoji('${e}')">${e}</span>`).join('');
 }
 function pickEmoji(e) {
-  selEmoji=e; avatarB64=null;
+  selEmoji=e; avatarB64='emoji:'+e;
   document.getElementById('av-prev').textContent=e;
   document.getElementById('av-file').value='';
   document.querySelectorAll('.ep').forEach(el=>el.classList.toggle('sel',el.textContent===e));
@@ -239,6 +237,21 @@ function pickEmoji(e) {
 // ---- WALLPAPER ----
 function buildWp() {
   document.getElementById('wp-picker').innerHTML=WALLS.map(w=>`<div class="wp-sw${w===selBg?' sel':''}" style="background:${w}" onclick="pickWp('${w}',this)"></div>`).join('');
+  updateBgPreview();
+}
+function updateBgPreview(){
+  if(selBg?.startsWith('linear-gradient')){
+    document.getElementById('color-preview').style.background=selBg;
+    const colors=selBg.match(/#[0-9a-f]{6}/gi)||[];
+    if(colors[0])document.getElementById('bg-start').value=colors[0];
+    if(colors[1])document.getElementById('bg-end').value=colors[1];
+  }
+}
+function pickCustomBg(){
+  selBg=`linear-gradient(145deg,${document.getElementById('bg-start').value},${document.getElementById('bg-end').value})`;
+  wpB64=null;document.getElementById('wp-file').value='';document.getElementById('wp-prev').style.display='none';
+  document.querySelectorAll('.wp-sw').forEach(x=>x.classList.remove('sel'));
+  updateBgPreview();
 }
 function pickWp(w,el) {
   selBg=w; wpB64=null;
@@ -246,6 +259,7 @@ function pickWp(w,el) {
   document.getElementById('wp-prev').style.display='none';
   document.querySelectorAll('.wp-sw').forEach(x=>x.classList.remove('sel'));
   el.classList.add('sel');
+  updateBgPreview();
 }
 function onWpFile(inp) {
   const f=inp.files[0]; if(!f) return;
@@ -371,10 +385,12 @@ async function saveProfile() {
       name:document.getElementById('ed-name').value,
       bio:document.getElementById('ed-bio').value,
       emoji:selEmoji, background:bgVal,
-      avatar_url:avatarB64||null,
+      avatar_url:avatarB64===null?(profile.avatar_url||null):(avatarB64||null),
       updated_at:new Date().toISOString()
     })});
-    toast('✅ Profil & wallpaper tersimpan!');
+    profile.avatar_url=avatarB64===null?(profile.avatar_url||null):(avatarB64||null);
+    avatarB64=null;
+    toast('✅ Logo dan background tersimpan!');
   } catch(e){ toast('Gagal simpan: '+e.message,false); }
 }
 
@@ -441,8 +457,9 @@ async function init() {
     profile=profs[0]||{};
     selEmoji=profile.emoji||'🌸';
     const av=document.getElementById('av-prev');
-    if(profile.avatar_url){av.innerHTML=`<img src="${profile.avatar_url}" alt="av">`;}
-    else{av.textContent=selEmoji;}
+    if(profile.avatar_url?.startsWith('emoji:')){av.textContent=profile.avatar_url.slice(6);}
+    else if(profile.avatar_url){const img=document.createElement('img');img.src=profile.avatar_url;img.alt='Logo';av.replaceChildren(img);}
+    else if(!av.querySelector('img')){av.textContent=selEmoji;}
     document.getElementById('ed-name').value=profile.name||'Azmayra';
     document.getElementById('ed-bio').value=profile.bio||'';
     if(profile.background){

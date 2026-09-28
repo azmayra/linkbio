@@ -21,6 +21,10 @@ Tambahkan variabel berikut pada project `linkbio-azmayra`, untuk Production dan 
 
 Editor memerlukan dua variabel pertama. Tanpa `META_PIXEL_ID`, Pixel tidak memuat. Tanpa `META_CAPI_ACCESS_TOKEN`, event browser masih berjalan dan pengiriman server dinonaktifkan. Jangan memakai token Meta Social atau Meta Ads sebagai pengganti token CAPI.
 
+## Logo dan warna
+
+Logo AZMAYRA hijau sage dari gambar referensi disimpan di `assets/azmayra-mark.png`. Latar awal memakai warna turunan logo `#425941` dan `#718765` dari warna utama `#93A56F`. Di editor, unggah logo baru atau pilih emoji, lalu klik **Simpan Profil**. Pilih salah satu palet sage atau atur dua warna sendiri, periksa pratinjau, lalu klik **Simpan Wallpaper**. Foto background juga tetap bisa diunggah. Logo tampil pada bidang terang dan teks pada bidang gelap transparan agar terbaca di berbagai pilihan warna.
+
 Project Supabase `lqhfdkggkmlorufswmhv` harus berstatus aktif. Migrasi `supabase-setup.sql` menambah jenis link dan foto produk serta menutup pembacaan analitik dari publik. Terapkan migrasi satu kali jika menyiapkan project baru.
 
 ## Peta event
