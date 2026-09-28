@@ -125,7 +125,7 @@ input:focus{outline:none;border-color:var(--accent)}
     <div id="link-editor"></div>
     <button class="btn btn-blue" onclick="addLink()">+ Tambah Link Baru</button>
     <button class="btn btn-blue" onclick="addShopeeProduct()">+ Tambah Produk Shopee</button>
-    <p style="font-size:11px;color:var(--muted);margin-top:9px">Setiap link dengan jenis Shopee akan tampil sebagai satu foto di halaman Link Shopee.</p>
+    <p id="shopee-capacity" style="font-size:11px;color:var(--muted);margin-top:9px"></p>
   </div>
 </div>
 
@@ -278,6 +278,8 @@ function onWpFile(inp) {
 
 // ---- LINK EDITOR ----
 function renderLinks() {
+  const shopee=links.filter(l=>(l.link_type||guessType(l))==='shopee');
+  document.getElementById('shopee-capacity').textContent=`Slot Shopee: ${shopee.length}/10 • ${shopee.filter(l=>l.active).length} tampil • draf tidak terlihat pengunjung. Isi foto dan URL, lalu aktifkan.`;
   document.getElementById('link-editor').innerHTML = links.map((l,i)=>`
     <div class="link-card" id="lc${i}">
       <div class="link-top">
@@ -292,6 +294,10 @@ function renderLinks() {
       <select onchange="links[${i}].link_type=this.value">
         ${[['other','Link lain'],['wa','WhatsApp (Contact)'],['lp','Landing page (LinkBioClick)'],['shopee','Shopee (LinkBioClick)']].map(([v,t])=>`<option value="${v}"${(l.link_type||guessType(l))===v?' selected':''}>${t}</option>`).join('')}
       </select>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:0 0 10px">
+        <input type="checkbox" ${l.active?'checked':''} onchange="links[${i}].active=this.checked">
+        Tampilkan ke pengunjung (nonaktif = draf)
+      </label>
       <label style="font-size:11px;color:var(--muted)">Foto produk Shopee (URL foto atau unggah gambar)</label>
       <input type="url" value="${escHtml(l.image_url||'')}" placeholder="https://.../foto-produk.jpg" oninput="links[${i}].image_url=this.value">
       <input type="file" accept="image/*" onchange="uploadProductPhoto(this,${i})" style="font-size:11px;margin-bottom:9px;max-width:100%">
@@ -348,30 +354,36 @@ async function saveLink(i) {
   const l=links[i];
   try {
     const url=cleanUrl(l.url);
-    if(!url)throw new Error('URL harus berupa alamat http/https yang valid');
+    if(l.active&&!url)throw new Error('Isi URL http/https sebelum menampilkan link');
+    if(l.url?.trim()&&!url)throw new Error('URL harus berupa alamat http/https yang valid');
     if(!l.label?.trim())throw new Error('Nama link wajib diisi');
     const image_url=l.image_url?.trim()||null;
     if(image_url&&!image_url.startsWith('data:image/')&&!cleanUrl(image_url))throw new Error('URL foto tidak valid');
-    const values={icon:l.icon,label:l.label.trim(),url,link_type:l.link_type||guessType(l),image_url};
+    const type=l.link_type||guessType(l);
+    if(type==='shopee'&&links.filter(x=>(x.link_type||guessType(x))==='shopee').length>10)throw new Error('Maksimal 10 kartu Shopee');
+    if(type==='shopee'&&l.active&&!image_url)throw new Error('Isi satu foto sebelum menampilkan produk Shopee');
+    const values={icon:l.icon,label:l.label.trim(),url:url||'',link_type:type,image_url,active:!!l.active};
     if(l.id) {
       await db(`az_links?id=eq.${l.id}`,{method:'PATCH',prefer:'return=minimal',body:JSON.stringify(values)});
     } else {
-      const [nl]=await db('az_links',{method:'POST',body:JSON.stringify({...values,sort_order:i+1,active:true})});
+      const [nl]=await db('az_links',{method:'POST',body:JSON.stringify({...values,sort_order:i+1})});
       links[i]=nl;
     }
-    links[i].url=url;renderLinks();
+    links[i].url=url||'';renderLinks();
     toast('✅ Link disimpan!');
   } catch(e){ toast('Gagal: '+e.message,false); }
 }
 
 async function addLink() {
-  links.push({id:null,icon:'🔗',label:'',url:'',link_type:'other',image_url:null});
+  links.push({id:null,icon:'🔗',label:'',url:'',link_type:'other',image_url:null,active:false});
   renderLinks();
   // scroll ke bawah
   setTimeout(()=>{ const lc=document.getElementById('lc'+(links.length-1)); if(lc) lc.scrollIntoView({behavior:'smooth',block:'center'}); },100);
 }
 function addShopeeProduct(){
-  links.push({id:null,icon:'shopee',label:'',url:'',link_type:'shopee',image_url:null});
+  const count=links.filter(l=>(l.link_type||guessType(l))==='shopee').length;
+  if(count>=10){toast('Slot Shopee sudah 10. Edit kartu draf yang ada.',false);return}
+  links.push({id:null,icon:'shopee',label:`Produk Shopee ${String(count+1).padStart(2,'0')}`,url:'',link_type:'shopee',image_url:null,active:false});
   renderLinks();
   setTimeout(()=>document.getElementById('lc'+(links.length-1))?.scrollIntoView({behavior:'smooth',block:'center'}),100);
 }
