@@ -53,14 +53,12 @@ const BRAND_MAP={
   tiktok:'https://cdn.simpleicons.org/tiktok/000000',
   facebook:'https://cdn.simpleicons.org/facebook/1877F2',
   shopee:'https://cdn.simpleicons.org/shopee/EE4D2D',
-  tokopedia:'https://cdn.simpleicons.org/tokopedia/42B549',
   youtube:'https://cdn.simpleicons.org/youtube/FF0000',
-  affiliate:'https://cdn.simpleicons.org/affiliatetheme/FF6B35',
-  lazada:'https://cdn.simpleicons.org/lazada/0F146D',
   twitter:'https://cdn.simpleicons.org/x/000000',
   telegram:'https://cdn.simpleicons.org/telegram/26A5E4',
   line:'https://cdn.simpleicons.org/line/00C300',
 };
+const BRAND_FALLBACK={tokopedia:'🛒',affiliate:'🔗',lazada:'🛍️'};
 
 async function dbGet(path){
   const r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
@@ -127,7 +125,7 @@ async function init(){
       const a=document.createElement('a');
       a.className='link-btn'; a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
       {const icon=document.createElement('span');icon.className='link-icon';
-        if(BRAND_MAP[l.icon]){const img=document.createElement('img');img.src=BRAND_MAP[l.icon];img.alt='';icon.appendChild(img);}else icon.textContent=l.icon||'🔗';a.appendChild(icon);}
+        if(BRAND_MAP[l.icon]){const img=document.createElement('img');img.src=BRAND_MAP[l.icon];img.alt='';icon.appendChild(img);}else icon.textContent=BRAND_FALLBACK[l.icon]||l.icon||'🔗';a.appendChild(icon);}
       const label=document.createElement('span');label.style.flex='1';label.textContent=l.label||'Buka tautan';a.appendChild(label);
       const arrow=document.createElement('span');arrow.textContent='↗';a.appendChild(arrow);
       a.addEventListener('click',()=>track(l,url,type));
