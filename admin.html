@@ -50,6 +50,8 @@ input:focus{outline:none;border-color:var(--accent)}
 .order-item.drag-over{border-color:#1baf7a;background:#e5f6ed}
 .order-label{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .order-icon{font-size:18px}
+.order-photo{width:36px;height:36px;object-fit:cover;border-radius:6px;background:#e8eee7;flex-shrink:0}
+.order-draft{font-size:11px;color:#687a6d;font-weight:400}
 .order-move{padding:5px 9px;border:1px solid #d0dbd2;border-radius:7px;background:#fff;cursor:pointer;color:#285b42;font-size:15px}
 .order-move:disabled{opacity:.35;cursor:not-allowed}
 .preview-phone{max-width:390px;margin:0 auto;border:7px solid #26302b;border-radius:30px;overflow:hidden;background:#fff;box-shadow:0 8px 30px #17302322}
@@ -142,6 +144,13 @@ input:focus{outline:none;border-color:var(--accent)}
       <ol class="order-list" id="link-order" aria-label="Urutan tombol Link Bio"></ol>
       <div id="order-message" style="font-size:12px;color:#285b42" role="status"></div>
     </div>
+    <div style="border:1px solid #cbded2;background:#f5faf6;border-radius:12px;padding:12px;margin-bottom:14px">
+      <div style="font-weight:700;color:#285b42;margin-bottom:4px">Urutan foto produk Shopee</div>
+      <p style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 10px">Seret produk ke atas atau bawah. Di HP, gunakan panah ↑ ↓. Produk draf juga bisa diatur; perubahan tersimpan otomatis.</p>
+      <ol class="order-list" id="shopee-order" aria-label="Urutan produk Shopee"></ol>
+      <div id="shopee-order-message" style="font-size:12px;color:#285b42" role="status"></div>
+      <a href="/shopee.html" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:#286b51">Lihat halaman Shopee ↗</a>
+    </div>
     <p style="font-size:12px;color:var(--muted);margin:0 0 12px">Untuk menambah tombol di halaman utama, klik Tambah Link di Link Bio. Isi nama dan URL, lalu simpan. Sepuluh slot Shopee hanya membatasi foto produk.</p>
     <button class="btn btn-blue" onclick="addLink()" style="margin:0 0 12px">+ Tambah Link di Link Bio</button>
     <div id="link-editor"></div>
@@ -218,7 +227,7 @@ const WALLS = [
 ];
 
 let profile={}, links=[], selEmoji='🌸', selBg=WALLS[0], avatarB64=null, wpB64=null, period=30;
-let tChart=null, hChart=null, openPanel=null, draggedOrderId=null, orderSaving=false;
+let tChart=null, hChart=null, openPanel=null, draggedOrderId=null, draggedShopeeId=null, orderSaving=false;
 
 async function db(path, opts={}) {
   const m = opts.method||'GET';
@@ -356,6 +365,7 @@ function renderLinks() {
       <button class="btn btn-green" data-idx="${i}" onclick="saveLinkByEl(this)" style="padding:8px">💾 Simpan Link Ini</button>
     </div>`).join('');
   renderOrder();
+  renderShopeeOrder();
 }
 
 function visibleOrder(){
@@ -379,6 +389,60 @@ function renderOrder(){
       <button type="button" class="order-move" aria-label="Turunkan ${escHtml(l.label)}" ${i===items.length-1||orderSaving?'disabled':''} onclick="moveOrder(${l.id},1)">↓</button>
     </li>`;
   }).join(''):'<li style="font-size:12px;color:#888">Belum ada tombol aktif.</li>';
+}
+function shopeeOrder(){return links.filter(l=>l.id&&(l.link_type||guessType(l))==='shopee')}
+function renderShopeeOrder(){
+  const items=shopeeOrder(),list=document.getElementById('shopee-order');
+  list.innerHTML=items.length?items.map((l,i)=>`<li class="order-item" draggable="${!orderSaving}" data-id="${l.id}" ondragstart="shopeeDragStart(event,this)" ondragover="shopeeDragOver(event,this)" ondragleave="this.classList.remove('drag-over')" ondrop="shopeeDrop(event,this)" ondragend="shopeeDragEnd()">
+    <span aria-hidden="true" style="color:#66816f">☰</span>
+    <img class="order-photo" src="${escHtml(l.image_url||'/assets/azmayra-mark.png')}" alt="" onerror="this.onerror=null;this.src='/assets/azmayra-mark.png'">
+    <span class="order-label">${i+1}. ${escHtml(l.label)}${l.active?'':' <span class="order-draft">(draf)</span>'}</span>
+    <button type="button" class="order-move" aria-label="Naikkan produk ${escHtml(l.label)}" ${i===0||orderSaving?'disabled':''} onclick="moveShopeeOrder(${l.id},-1)">↑</button>
+    <button type="button" class="order-move" aria-label="Turunkan produk ${escHtml(l.label)}" ${i===items.length-1||orderSaving?'disabled':''} onclick="moveShopeeOrder(${l.id},1)">↓</button>
+  </li>`).join(''):'<li style="font-size:12px;color:#888">Simpan produk Shopee terlebih dahulu.</li>';
+}
+function shopeeDragStart(event,el){
+  if(orderSaving){event.preventDefault();return}
+  draggedShopeeId=Number(el.dataset.id);el.classList.add('dragging');
+  event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',String(draggedShopeeId));
+}
+function shopeeDragOver(event,el){if(!orderSaving&&draggedShopeeId!==Number(el.dataset.id)){event.preventDefault();el.classList.add('drag-over')}}
+function shopeeDragEnd(){draggedShopeeId=null;document.querySelectorAll('#shopee-order .order-item').forEach(el=>el.classList.remove('dragging','drag-over'))}
+function shopeeDrop(event,el){
+  event.preventDefault();
+  const source=draggedShopeeId,target=Number(el.dataset.id);shopeeDragEnd();
+  if(!source||source===target||orderSaving)return;
+  const ids=shopeeOrder().map(l=>l.id),from=ids.indexOf(source),to=ids.indexOf(target);
+  if(from<0||to<0)return;
+  ids.splice(to,0,ids.splice(from,1)[0]);persistShopeeOrder(ids);
+}
+function moveShopeeOrder(id,direction){
+  if(orderSaving)return;
+  const ids=shopeeOrder().map(l=>l.id),i=ids.indexOf(id),next=i+direction;
+  if(i<0||next<0||next>=ids.length)return;
+  [ids[i],ids[next]]=[ids[next],ids[i]];persistShopeeOrder(ids);
+}
+async function persistShopeeOrder(ids){
+  if(orderSaving)return;
+  orderSaving=true;
+  const message=document.getElementById('shopee-order-message');message.textContent='Menyimpan urutan foto…';renderOrder();renderShopeeOrder();
+  try{
+    const saved=links.filter(l=>l.id),byId=new Map(shopeeOrder().map(l=>[l.id,l]));
+    if(ids.length!==byId.size||ids.some(id=>!byId.has(id)))throw Error('Produk berubah. Muat ulang editor.');
+    let next=0;
+    const ordered=saved.map(row=>(row.link_type||guessType(row))==='shopee'?byId.get(ids[next++]):row);
+    for(let i=0;i<ordered.length;i++){
+      if(Number(ordered[i].sort_order)===i+1)continue;
+      await db(`az_links?id=eq.${ordered[i].id}`,{method:'PATCH',prefer:'return=minimal',body:JSON.stringify({sort_order:i+1})});
+      ordered[i].sort_order=i+1;
+    }
+    links=[...ordered,...links.filter(l=>!l.id)];renderLinks();refreshPreview();
+    message.textContent='✓ Urutan foto tersimpan. Halaman Shopee mengikuti urutan ini.';
+  }catch(e){
+    message.textContent='Gagal menyimpan urutan foto: '+e.message;
+    try{links=await db('az_links?select=*&order=sort_order.asc');renderLinks()}catch{}
+    toast('Gagal menyimpan urutan foto',false);
+  }finally{orderSaving=false;renderOrder();renderShopeeOrder()}
 }
 function orderDragStart(event,el){
   if(orderSaving){event.preventDefault();return}
@@ -426,7 +490,7 @@ async function persistOrder(ids){
     message.textContent='Gagal menyimpan urutan: '+e.message;
     try{links=await db('az_links?select=*&order=sort_order.asc');renderLinks()}catch{}
     toast('Gagal menyimpan urutan',false);
-  }finally{orderSaving=false;renderOrder()}
+  }finally{orderSaving=false;renderOrder();renderShopeeOrder()}
 }
 
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/>/g,'&gt;')}
