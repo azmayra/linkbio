@@ -307,8 +307,8 @@ function renderLinks() {
       <div class="link-top">
         <div class="icon-btn" data-idx="${i}" onclick="togglePanel(this)">${imgEl(l.icon,26)}</div>
         <div class="link-name-url" style="flex:1">
-          <input type="text" value="${escHtml(l.label)}" placeholder="Nama link" oninput="links[${i}].label=this.value">
-          <input type="url" value="${escHtml(l.url)}" placeholder="https://..." oninput="links[${i}].url=this.value">
+          <input type="text" value="${escHtml(l.label)}" placeholder="Nama link" oninput="updateLinkField(this,${i},'label')">
+          <input type="url" value="${escHtml(l.url)}" placeholder="https://..." oninput="updateLinkField(this,${i},'url')">
         </div>
         <button class="btn btn-red" onclick="delLink(${i},${Number(l.id)||0})">✕</button>
       </div>
@@ -317,12 +317,12 @@ function renderLinks() {
         ${[['other','Link lain'],['wa','WhatsApp (Contact)'],['lp','Landing page (LinkBioClick)'],['shopee','Shopee (LinkBioClick)']].map(([v,t])=>`<option value="${v}"${(l.link_type||guessType(l))===v?' selected':''}>${t}</option>`).join('')}
       </select>
       <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:0 0 10px">
-        <input type="checkbox" ${l.active?'checked':''} onchange="links[${i}].active=this.checked">
+        <input type="checkbox" ${l.active?'checked':''} onchange="updateLinkField(this,${i},'active')">
         Tampilkan ke pengunjung (nonaktif = draf)
       </label>
       <div class="shopee-photo" style="display:${(l.link_type||guessType(l))==='shopee'?'block':'none'}">
         <label style="font-size:11px;color:var(--muted)">Foto produk Shopee (URL foto atau unggah gambar)</label>
-        <input type="url" value="${escHtml(l.image_url||'')}" placeholder="https://.../foto-produk.jpg" oninput="links[${i}].image_url=this.value">
+        <input type="url" value="${escHtml(l.image_url||'')}" placeholder="https://.../foto-produk.jpg" oninput="updateLinkField(this,${i},'image_url')">
         <input type="file" accept="image/*" onchange="uploadProductPhoto(this,${i})" style="font-size:11px;margin-bottom:9px;max-width:100%">
       </div>
       <div class="icon-panel" data-for="${i}" id="ip${i}">
@@ -343,6 +343,12 @@ function renderLinks() {
 
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/>/g,'&gt;')}
 function guessType(l){const u=(l.url||'').toLowerCase();return l.icon==='whatsapp'||u.includes('wa.me/')?'wa':l.icon==='shopee'||u.includes('shopee.')?'shopee':u.includes('azmayra-lp.vercel.app')?'lp':'other'}
+function updateLinkField(el,i,field){
+  if(!links[i]){toast('Kartu link berubah. Muat ulang editor.',false);return}
+  links[i][field]=field==='active'?el.checked:el.value;
+  const status=el.closest('.link-card')?.querySelector('.link-status');
+  if(status)status.textContent='';
+}
 function setLinkType(el,i){links[i].link_type=el.value;el.closest('.link-card').querySelector('.shopee-photo').style.display=el.value==='shopee'?'block':'none'}
 function cleanUrl(s){try{let raw=String(s||'').trim();if(!/^[a-z][a-z\d+.-]*:/i.test(raw))raw='https://'+raw;const u=new URL(raw);return ['http:','https:'].includes(u.protocol)?u.href:null}catch{return null}}
 async function uploadProductPhoto(inp,i){
@@ -382,6 +388,16 @@ async function saveLink(i,button) {
   const status=card?.querySelector('.link-status');
   if(status)status.textContent='';
   try {
+    // Read the form as the source of truth, including browser autofill which may not fire input events.
+    if(card){
+      const fields=card.querySelectorAll('.link-name-url input');
+      l.label=fields[0].value;
+      l.url=fields[1].value;
+      l.link_type=card.querySelector('select').value;
+      l.active=card.querySelector('input[type=checkbox]').checked;
+      const photo=card.querySelector('.shopee-photo input[type=url]');
+      if(l.link_type==='shopee'&&photo?.value.trim())l.image_url=photo.value;
+    }
     const url=cleanUrl(l.url);
     if(!l.label?.trim())throw new Error('Isi Nama link pada kartu ini');
     if(l.active&&!url)throw new Error('Isi URL http/https sebelum menampilkan link');
